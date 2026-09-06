@@ -1,268 +1,1772 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo Vivero - Presupuestos</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- html2pdf.js para generar el PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        body { background-color: #f4f6f8; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .hero { background: linear-gradient(135deg, #2e7d32, #1b5e20); color: white; padding: 2rem 1rem; border-radius: 0 0 15px 15px; }
-        .card-product { border: none; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s; }
-        .card-product:hover { transform: translateY(-3px); }
-        .pdf-template { display: none; background: #fff; padding: 30px; font-family: Arial, sans-serif; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vivero Caladio | De José Luis Romero</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- jsPDF & AutoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f2f9f4',
+              100: '#e1f2e5',
+              200: '#c3e5cd',
+              300: '#97d1aa',
+              400: '#64b480',
+              500: '#3e975f',
+              600: '#2d7a4a',
+              700: '#25613c',
+              800: '#204d32',
+              900: '#1b402a',
+              950: '#0e2317',
+            },
+            earth: {
+              100: '#f7f4f0',
+              200: '#e8dfd5',
+              700: '#8c6d53',
+              900: '#4a382a',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glass-nav {
+      background: rgba(14, 35, 23, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .hero-gradient {
+      background: linear-gradient(180deg, rgba(14, 35, 23, 0.7) 0%, rgba(14, 35, 23, 0.9) 100%), url('https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=2000&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2d7a4a;
+      border-radius: 4px;
+    }
+  </style>
 </head>
-<body>
+<body class="bg-brand-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
 
-    <div class="hero text-center mb-4">
-        <h1>🌱 Vivero - Catálogo & Cotizador</h1>
-        <p class="mb-0">Consulta precios, arma tu lista y descarga tu presupuesto en PDF</p>
+  <!-- NAVBAR -->
+  <header class="fixed top-0 left-0 right-0 z-40 glass-nav border-b border-brand-800/40 text-white transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#" class="flex items-center space-x-3 group">
+        <div class="w-11 h-11 rounded-xl bg-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/30 group-hover:bg-brand-400 transition-all duration-300">
+          <i data-lucide="sprout" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <span class="font-serif text-xl sm:text-2xl font-bold tracking-tight block leading-none">Caladio</span>
+          <span class="text-[10px] uppercase tracking-widest text-brand-300 font-semibold mt-1 block">De José Luis Romero</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
+        <a href="#inicio" class="text-brand-100 hover:text-white transition-colors">Inicio</a>
+        <a href="#nosotros" class="text-brand-100 hover:text-white transition-colors">Nosotros</a>
+        <a href="#contacto" class="text-brand-100 hover:text-white transition-colors">Contacto</a>
+      </nav>
+
+      <!-- Actions -->
+      <div class="flex items-center space-x-3">
+        <!-- BOTONES ADMIN (OCULTOS POR DEFECTO) -->
+        <button id="nav-btn-presupuesto" onclick="openPresupuestoAdminModal()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center space-x-2 shadow-lg transition-all">
+          <i data-lucide="calculator" class="w-4 h-4"></i>
+          <span>Crear Presupuesto</span>
+        </button>
+
+        <button id="nav-btn-remito" onclick="openRemitoModal()" class="hidden bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center space-x-2 shadow-lg transition-all">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          <span>Crear Remito</span>
+        </button>
+
+        <button id="nav-btn-plant-list" onclick="openPlantListModal()" class="hidden bg-brand-600 hover:bg-brand-500 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center space-x-2 shadow-lg transition-all">
+          <i data-lucide="list-tree" class="w-4 h-4"></i>
+          <span>Ver lista de plantas</span>
+        </button>
+
+        <!-- Admin Login Button -->
+        <button onclick="openAdminModal()" class="p-2.5 text-brand-200 hover:text-white hover:bg-brand-800/50 rounded-xl transition-colors" title="Acceso Administrador">
+          <i data-lucide="user-cog" class="w-5 h-5"></i>
+        </button>
+      </div>
     </div>
+  </header>
 
-    <div class="container mb-5">
-        <div class="row">
-            <!-- Columna izquierda: Catálogo de productos -->
-            <div class="col-lg-8">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <input type="text" id="searchInput" class="form-control me-2" placeholder="🔍 Buscar planta por nombre..." onkeyup="filtrarProductos()">
-                    <select id="categoryFilter" class="form-select w-50" onchange="filtrarProductos()">
-                        <option value="">Todas las categorías</option>
-                    </select>
-                </div>
+  <!-- HERO SECTION -->
+  <section id="inicio" class="hero-gradient min-h-screen pt-28 pb-20 flex items-center justify-center relative overflow-hidden">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center relative z-10">
+      <span class="inline-flex items-center space-x-2 bg-brand-500/20 border border-brand-400/30 text-brand-200 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 backdrop-blur-md">
+        <i data-lucide="leaf" class="w-3.5 h-3.5 text-brand-400"></i>
+        <span>Producción Propia y Asesoramiento Técnico</span>
+      </span>
+      
+      <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl font-bold text-white tracking-tight leading-[1.1] mb-6">
+        Transformamos tus espacios con la mejor <span class="italic text-brand-300 font-normal">vida verde</span>.
+      </h1>
+      
+      <p class="text-lg sm:text-xl text-brand-100/90 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
+        Descubre nuestro catálogo exclusivo con más de 450 especies cultivadas. Solicita tu presupuesto personalizado en formato PDF al instante.
+      </p>
 
-                <div id="loader" class="text-center py-5">
-                    <div class="spinner-border text-success" role="status"></div>
-                    <p class="mt-2 text-muted">Cargando catálogo desde Google Sheets...</p>
-                </div>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <button onclick="openCatalogModal()" class="w-full sm:w-auto bg-brand-400 hover:bg-brand-300 text-brand-950 font-bold px-8 py-4 rounded-xl text-base shadow-xl shadow-brand-950/40 flex items-center justify-center space-x-3 transition-all duration-300 hover:scale-105">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          <span>Explorar Catálogo y Presupuestar</span>
+        </button>
+        
+        <a href="https://wa.me/543804883917" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-medium px-8 py-4 rounded-xl text-base border border-white/20 backdrop-blur-md flex items-center justify-center space-x-2 transition-all">
+          <i data-lucide="phone-call" class="w-4 h-4"></i>
+          <span>Contactar Asesor</span>
+        </a>
+      </div>
 
-                <div class="row g-3" id="productGrid"></div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-10 border-t border-white/10 text-white">
+        <div>
+          <div class="font-serif text-3xl font-bold text-brand-300">+450</div>
+          <div class="text-xs text-brand-200/80 mt-1">Variedades en Stock</div>
+        </div>
+        <div>
+          <div class="font-serif text-3xl font-bold text-brand-300">100%</div>
+          <div class="text-xs text-brand-200/80 mt-1">Calidad Garantizada</div>
+        </div>
+        <div>
+          <div class="font-serif text-3xl font-bold text-brand-300">Instantáneo</div>
+          <div class="text-xs text-brand-200/80 mt-1">Presupuesto en PDF</div>
+        </div>
+        <div>
+          <div class="font-serif text-3xl font-bold text-brand-300">+15 Años</div>
+          <div class="text-xs text-brand-200/80 mt-1">Experiencia y Pasión</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN NOSOTROS -->
+  <section id="nosotros" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <h2 class="text-xs font-bold uppercase tracking-widest text-brand-600 mb-2">Conócenos</h2>
+        <p class="font-serif text-3xl sm:text-4xl font-bold text-gray-900">Sobre Vivero Caladio</p>
+        <p class="text-gray-600 text-sm mt-3">Cultivamos con pasión y dedicación para ofrecerte las mejores plantas ornamentales, frutales y de interior en La Rioja.</p>
+      </div>
+
+      <div class="relative max-w-4xl mx-auto overflow-hidden rounded-3xl shadow-2xl bg-brand-900 border border-brand-800">
+        <div id="carousel-slides" class="flex transition-transform duration-500 ease-in-out">
+          <div class="min-w-full relative h-[380px] sm:h-[480px]">
+            <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=1600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Instalaciones del vivero">
+            <div class="absolute inset-0 bg-gradient-to-t from-brand-950/90 via-transparent to-transparent flex items-end p-6 sm:p-10">
+              <div class="text-white">
+                <h3 class="font-serif text-2xl sm:text-3xl font-bold mb-2">Instalaciones de Cultivo Directo</h3>
+                <p class="text-xs sm:text-sm text-brand-200 max-w-xl">Contamos con amplios sectores de producción y acondicionamiento técnico para asegurar plantas sanas y resistentes.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="min-w-full relative h-[380px] sm:h-[480px]">
+            <img src="https://images.unsplash.com/photo-1463936575829-25148e1db1b8?q=80&w=1600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Variedad de Suculentas y Plantas">
+            <div class="absolute inset-0 bg-gradient-to-t from-brand-950/90 via-transparent to-transparent flex items-end p-6 sm:p-10">
+              <div class="text-white">
+                <h3 class="font-serif text-2xl sm:text-3xl font-bold mb-2">Variedad y Calidad Garantizada</h3>
+                <p class="text-xs sm:text-sm text-brand-200 max-w-xl">Desde especies autóctonas hasta exóticas de interior, adaptadas perfectamente a nuestro clima local.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="min-w-full relative h-[380px] sm:h-[480px]">
+            <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?q=80&w=1600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Asesoría personalizada">
+            <div class="absolute inset-0 bg-gradient-to-t from-brand-950/90 via-transparent to-transparent flex items-end p-6 sm:p-10">
+              <div class="text-white">
+                <h3 class="font-serif text-2xl sm:text-3xl font-bold mb-2">Atención y Asesoramiento Técnico</h3>
+                <p class="text-xs sm:text-sm text-brand-200 max-w-xl">Te guiamos paso a paso en la selección, trasplante y mantenimiento para que tus espacios verdes florezcan.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-slate-900/60 hover:bg-slate-900 text-white flex items-center justify-center transition-all backdrop-blur-sm">
+          <i data-lucide="chevron-left" class="w-6 h-6"></i>
+        </button>
+        <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-slate-900/60 hover:bg-slate-900 text-white flex items-center justify-center transition-all backdrop-blur-sm">
+          <i data-lucide="chevron-right" class="w-6 h-6"></i>
+        </button>
+
+        <div class="absolute bottom-4 right-6 flex space-x-2">
+          <button onclick="goToSlide(0)" class="carousel-dot w-3 h-3 rounded-full bg-white transition-all"></button>
+          <button onclick="goToSlide(1)" class="carousel-dot w-3 h-3 rounded-full bg-white/40 transition-all"></button>
+          <button onclick="goToSlide(2)" class="carousel-dot w-3 h-3 rounded-full bg-white/40 transition-all"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BANNER CTA -->
+  <section class="py-16 bg-brand-900 text-white relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8">
+      <div>
+        <h2 class="font-serif text-3xl font-bold mb-2">¿Buscas especies específicas para tu proyecto?</h2>
+        <p class="text-brand-200 text-sm">Explora el catálogo completo con precios actualizados e imágenes descriptivas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="contacto" class="bg-brand-950 text-brand-300 py-12 border-t border-brand-900 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+      <div>
+        <div class="flex items-center space-x-2 text-white font-serif text-xl font-bold mb-4">
+          <i data-lucide="sprout" class="w-6 h-6 text-brand-400"></i>
+          <span>Vivero Caladio</span>
+        </div>
+        <p class="text-xs text-brand-300/80 leading-relaxed">
+          Especialistas en plantas ornamentales, árboles, frutales y macetería de alta calidad.
+        </p>
+      </div>
+
+      <div>
+        <h4 class="text-white font-semibold text-sm mb-4">Contacto</h4>
+        <ul class="space-y-2 text-xs">
+          <li class="flex items-center space-x-2"><i data-lucide="map-pin" class="w-4 h-4 text-brand-400"></i> <span>La Rioja, Argentina</span></li>
+          <li class="flex items-center space-x-2"><i data-lucide="phone" class="w-4 h-4 text-brand-400"></i> <span>+54 380 4883917</span></li>
+          <li class="flex items-center space-x-2"><i data-lucide="mail" class="w-4 h-4 text-brand-400"></i> <span>viverocaladiolr@gmail.com</span></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="text-white font-semibold text-sm mb-4">Horarios de Atención</h4>
+        <p class="text-xs leading-relaxed">
+          Lunes a Domingos: 09:00 hs - 20:30 hs<br>
+        </p>
+      </div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 border-t border-brand-900 text-center text-[11px] text-brand-400/60">
+      &copy; 2026 Vivero Caladio. Todos los derechos reservados.
+    </div>
+  </footer>
+
+  <!-- MODAL / VISTA COMPLETA DEL CATÁLOGO & PRESUPUESTO CLIENTES -->
+  <div id="catalog-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-2 sm:p-4 md:p-6">
+    <div class="bg-white w-full max-w-7xl h-[94vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-brand-200">
+      
+      <!-- Catalog Header -->
+      <div class="bg-brand-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-brand-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-brand-600 flex items-center justify-center">
+            <i data-lucide="book-open" class="w-5 h-5 text-white"></i>
+          </div>
+          <div>
+            <h2 class="font-serif text-lg sm:text-xl font-bold">Catálogo de Plantas & Presupuestador</h2>
+            <p class="text-xs text-brand-300 hidden sm:block">Selecciona tus plantas y genera la cotización oficial en PDF</p>
+          </div>
+        </div>
+
+        <button onclick="closeCatalogModal()" class="w-9 h-9 rounded-lg bg-brand-800/80 hover:bg-brand-700 flex items-center justify-center text-brand-200 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Catalog Main Area -->
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden bg-brand-50/50">
+        
+        <!-- MAIN CATALOG LIST -->
+        <div class="lg:col-span-8 flex flex-col h-full overflow-hidden border-r border-gray-200">
+          <div class="p-4 bg-white border-b border-gray-200 space-y-3">
+            <div class="flex flex-col sm:flex-row gap-3">
+              <div class="relative flex-1">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="search-input" oninput="filterPlants()" placeholder="Buscar por nombre o especie..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+              </div>
+              <select id="category-select" onchange="filterPlants()" class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="TODAS">Todas las Categorías</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-4 sm:p-6">
+            <div id="plants-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              <!-- Dynamically Populated -->
+            </div>
+            
+            <div id="no-results" class="hidden text-center py-16">
+              <i data-lucide="frown" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+              <p class="text-gray-500 text-sm">No se encontraron plantas con los filtros seleccionados.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CART & BUDGET PANEL -->
+        <div class="lg:col-span-4 bg-white flex flex-col h-full overflow-hidden border-t lg:border-t-0">
+          <div class="p-4 bg-brand-50 border-b border-brand-100 flex items-center justify-between">
+            <div class="flex items-center space-x-2 text-brand-900 font-bold text-sm">
+              <i data-lucide="calculator" class="w-4 h-4 text-brand-600"></i>
+              <span>Tu Presupuesto</span>
+            </div>
+            <button onclick="clearCart()" class="text-xs text-red-600 hover:text-red-800 font-medium transition-colors">Vaciar</button>
+          </div>
+
+          <div class="p-4 border-b border-gray-100 bg-white space-y-2">
+            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">Datos del Cliente (Opcional)</label>
+            <input type="text" id="client-name" placeholder="Nombre completo / Empresa" class="w-full px-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500">
+            <input type="text" id="client-phone" placeholder="Teléfono de contacto" class="w-full px-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500">
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-4">
+            <ul id="cart-list" class="space-y-3">
+              <!-- Dynamically Populated -->
+            </ul>
+            <div id="empty-cart-msg" class="text-center py-12 text-gray-400">
+              <i data-lucide="shopping-cart" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+              <p class="text-xs">El presupuesto está vacío.<br>Haz clic en "+ Agregar" en las plantas.</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-gray-50 border-t border-gray-200 space-y-3">
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-gray-500 font-medium">Items agregados:</span>
+              <span id="cart-item-count" class="font-bold text-gray-800">0</span>
             </div>
 
-            <!-- Columna derecha: Carrito / Presupuesto -->
-            <div class="col-lg-4">
-                <div class="card shadow-sm sticky-top" style="top: 20px;">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="card-title mb-0">📋 Tu Presupuesto</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="cartItems" class="mb-3">
-                            <p class="text-muted text-center py-3">No has seleccionado ningún producto aún.</p>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
-                            <span>Total:</span>
-                            <span id="cartTotal">$0</span>
-                        </div>
-                        <button class="btn btn-outline-success w-100 mb-2" onclick="generarPDF()" id="btnPDF" disabled>
-                            📄 Descargar Presupuesto (PDF)
-                        </button>
-                    </div>
-                </div>
+            <!-- TOTAL PARA PRESUPUESTO CLIENTES -->
+            <div class="pt-2 border-t border-gray-200 space-y-1">
+              <div class="flex justify-between items-baseline pt-2">
+                <span class="text-gray-900 font-bold text-base">Total Estimado:</span>
+                <span id="cart-total-price" class="text-2xl font-black text-brand-700">$0</span>
+              </div>
             </div>
+
+            <button onclick="generatePDFBudget()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-600/30 flex items-center justify-center space-x-2 transition-all hover:scale-[1.02] active:scale-[0.98]">
+              <i data-lucide="file-down" class="w-5 h-5"></i>
+              <span>Descargar Presupuesto PDF</span>
+            </button>
+          </div>
         </div>
+
+      </div>
+
     </div>
+  </div>
 
-    <!-- Plantilla Oculta para la generación del PDF -->
-    <div id="pdfContainer" class="pdf-template">
-        <div style="text-align: center; border-bottom: 2px solid #2e7d32; padding-bottom: 10px; margin-bottom: 20px;">
-            <h2 style="color: #2e7d32; margin: 0;">VIVERO - PRESUPUESTO DE COMPRA</h2>
-            <p style="margin: 5px 0; color: #555;">Documento no válido como factura</p>
-            <p style="margin: 0; font-size: 12px; color: #777;" id="pdfFecha"></p>
+  <!-- ADMIN LOGIN / CRUD MODAL -->
+  <div id="admin-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl p-6 border border-gray-100">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="font-serif text-xl font-bold text-gray-900 flex items-center space-x-2">
+          <i data-lucide="lock" class="w-5 h-5 text-brand-600"></i>
+          <span>Panel de Administración</span>
+        </h3>
+        <button onclick="closeAdminModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- Login View -->
+      <div id="admin-login-view" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Contraseña de Administrador</label>
+          <input type="password" id="admin-pass" placeholder="Ingresa la clave..." class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+        </div>
+        <button onclick="submitAdminLogin()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-xl text-sm shadow-md">Ingresar al Sistema</button>
+      </div>
+
+      <!-- Logged View -->
+      <div id="admin-crud-view" class="hidden space-y-4">
+        <div class="p-3 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-semibold flex items-center justify-between">
+          <span>✓ Sesión de Administrador Activa</span>
+          <button onclick="logoutAdmin()" class="text-red-600 hover:underline">Cerrar Sesión</button>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- BOTÓN CREAR PRESUPUESTO -->
+          <button onclick="closeAdminModal(); openPresupuestoAdminModal();" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs shadow-md flex items-center justify-center space-x-1 transition-all">
+            <i data-lucide="calculator" class="w-4 h-4"></i>
+            <span>Crear Presupuesto</span>
+          </button>
+
+          <!-- BOTÓN CREAR REMITO -->
+          <button onclick="closeAdminModal(); openRemitoModal();" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl text-xs shadow-md flex items-center justify-center space-x-1 transition-all">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+            <span>Crear Remito</span>
+          </button>
+
+          <!-- BOTÓN VER LISTA DE PLANTAS -->
+          <button onclick="closeAdminModal(); openPlantListModal();" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl text-xs shadow-md flex items-center justify-center space-x-1 transition-all">
+            <i data-lucide="list-tree" class="w-4 h-4"></i>
+            <span>Ver lista plantas</span>
+          </button>
         </div>
 
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-            <thead>
-                <tr style="background-color: #2e7d32; color: white;">
-                    <th style="padding: 8px; text-align: left;">Producto</th>
-                    <th style="padding: 8px; text-align: center;">Cant.</th>
-                    <th style="padding: 8px; text-align: right;">P. Unit.</th>
-                    <th style="padding: 8px; text-align: right;">Subtotal</th>
+        <p class="text-xs text-gray-500">
+          Desde aquí puedes administrar el stock de plantas, emitir presupuestos o remitos de salida oficiales en PDF.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CREACIÓN DE PRESUPUESTO ADMIN (IDÉNTICO AL REMITO) -->
+  <div id="presupuesto-admin-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white w-full max-w-4xl h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+      
+      <div class="bg-emerald-700 text-white p-4 flex items-center justify-between border-b border-emerald-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center">
+            <i data-lucide="calculator" class="w-5 h-5 text-white"></i>
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold">Generador de Presupuesto Oficial</h3>
+            <p class="text-xs text-emerald-200">Selecciona plantas, ajusta cantidades y exporta en PDF</p>
+          </div>
+        </div>
+        <button onclick="closePresupuestoAdminModal()" class="w-9 h-9 rounded-lg bg-emerald-800 hover:bg-emerald-600 flex items-center justify-center text-emerald-100 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-slate-50">
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center space-x-2">
+            <i data-lucide="user" class="w-4 h-4"></i>
+            <span>Datos del Destinatario del Presupuesto</span>
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input type="text" id="presupuesto-admin-client-name" placeholder="Nombre completo / Cliente" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+            <input type="text" id="presupuesto-admin-client-phone" placeholder="Teléfono de contacto" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center space-x-2">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Agregar Especie al Presupuesto</span>
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            <select id="presupuesto-admin-plant-select" class="sm:col-span-7 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+              <!-- Dynamically populated -->
+            </select>
+            <input type="number" id="presupuesto-admin-plant-qty" min="1" value="1" placeholder="Cant." class="sm:col-span-2 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+            <button id="presupuesto-admin-add-btn" onclick="addPlantToPresupuestoAdmin()" class="sm:col-span-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow transition-all flex items-center justify-center space-x-1">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Agregar</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+            <span class="text-xs font-bold uppercase text-gray-500 tracking-wider">Detalle de Artículos Incluidos</span>
+            <button onclick="clearPresupuestoAdminItems()" class="text-xs text-red-600 hover:underline">Vaciar Presupuesto</button>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-gray-50 text-gray-600 font-bold border-b border-gray-200">
+                <tr>
+                  <th class="p-3">Especie</th>
+                  <th class="p-3 text-center">Cantidad</th>
+                  <th class="p-3 text-right">Precio Unit. ($)</th>
+                  <th class="p-3 text-right">Subtotal ($)</th>
+                  <th class="p-3 text-center">Acción</th>
                 </tr>
-            </thead>
-            <tbody id="pdfTableBody"></tbody>
-        </table>
+              </thead>
+              <tbody id="presupuesto-admin-items-tbody" class="divide-y divide-gray-100">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
 
-        <div style="text-align: right; font-size: 18px; font-weight: bold; margin-top: 20px;">
-            <p>Total Presupuestado: <span id="pdfTotal" style="color: #2e7d32;"></span></p>
+          <div id="presupuesto-admin-empty-msg" class="p-8 text-center text-gray-400">
+            <p class="text-xs">No has agregado elementos al presupuesto aún.</p>
+          </div>
         </div>
 
-        <div style="margin-top: 40px; font-size: 11px; text-align: center; color: #888; border-top: 1px solid #ddd; padding-top: 10px;">
-            <p>Gracias por consultar con nuestro Vivero. Los precios están sujetos a modificaciones sin previo aviso.</p>
+      </div>
+
+      <!-- Footer Presupuesto Admin Actions (SUBTOTAL, IVA Y TOTAL) -->
+      <div class="p-4 bg-gray-100 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex flex-col space-y-1">
+          <div class="text-xs text-gray-600">
+            Subtotal: <span id="presupuesto-admin-subtotal-price" class="font-bold text-gray-800">$0</span>
+          </div>
+          <div class="flex items-center space-x-2 text-xs">
+            <label class="flex items-center space-x-1 cursor-pointer text-gray-700">
+              <input type="checkbox" id="presupuesto-admin-iva-check" onchange="renderPresupuestoAdminItemsTable()" class="rounded text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5">
+              <span>Agregar IVA (21%)</span>
+            </label>
+            <span id="presupuesto-admin-iva-amount" class="text-gray-500 font-semibold">$0</span>
+          </div>
+          <div>
+            <span class="text-xs text-gray-500">Monto Total Estimado:</span>
+            <span id="presupuesto-admin-total-price" class="text-xl font-black text-emerald-800 ml-2">$0</span>
+          </div>
         </div>
+        <button onclick="generatePDFPresupuestoAdmin()" class="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg flex items-center justify-center space-x-2 transition-all">
+          <i data-lucide="printer" class="w-5 h-5"></i>
+          <span>Guardar o Imprimir Presupuesto (PDF)</span>
+        </button>
+      </div>
+
     </div>
+  </div>
 
-    <script>
-        // ⚠️ REEMPLAZA ESTA URL CON TU URL DE DESPLIEGUE DE GOOGLE APPS SCRIPT
-        const API_URL = "https://script.google.com/macros/s/AKfycbwgt2AYe_f7TEo4G0qvOP8sobY-l5rwvA4VKIQJgsgPOBM4R9d7sj_O8cByL-37fn-gyQ/exec";
+  <!-- MODAL CREACIÓN DE REMITO (SOLO ADMIN) -->
+  <div id="remito-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white w-full max-w-4xl h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+      
+      <div class="bg-amber-700 text-white p-4 flex items-center justify-between border-b border-amber-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-amber-600 flex items-center justify-center">
+            <i data-lucide="file-text" class="w-5 h-5 text-white"></i>
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold">Generador de Remito Oficial</h3>
+            <p class="text-xs text-amber-200">Selecciona plantas, ajusta cantidades y exporta en PDF</p>
+          </div>
+        </div>
+        <button onclick="closeRemitoModal()" class="w-9 h-9 rounded-lg bg-amber-800 hover:bg-amber-600 flex items-center justify-center text-amber-100 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
 
-        let productos = [];
-        let carrito = [];
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-slate-50">
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center space-x-2">
+            <i data-lucide="user" class="w-4 h-4"></i>
+            <span>Datos del Receptor del Remito</span>
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input type="text" id="remito-client-name" placeholder="Nombre completo / Cliente" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-amber-500 outline-none">
+            <input type="text" id="remito-client-phone" placeholder="Teléfono de contacto" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-amber-500 outline-none">
+            <input type="text" id="remito-client-address" placeholder="Dirección de entrega" class="sm:col-span-2 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-amber-500 outline-none">
+          </div>
+        </div>
 
-        async function cargarProductos() {
-            try {
-                const res = await fetch(API_URL);
-                productos = await res.json();
-                document.getElementById('loader').style.display = 'none';
-                poblarCategorias();
-                renderProductos(productos);
-            } catch (err) {
-                document.getElementById('loader').innerHTML = '<p class="text-danger">Error al cargar la lista de productos.</p>';
-            }
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center space-x-2">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Agregar Especie al Remito</span>
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            <select id="remito-plant-select" class="sm:col-span-7 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-amber-500 outline-none">
+              <!-- Dynamically populated -->
+            </select>
+            <input type="number" id="remito-plant-qty" min="1" value="1" placeholder="Cant." class="sm:col-span-2 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-amber-500 outline-none">
+            <button id="remito-add-btn" onclick="addPlantToRemito()" class="sm:col-span-3 bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow transition-all flex items-center justify-center space-x-1">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Agregar</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+            <span class="text-xs font-bold uppercase text-gray-500 tracking-wider">Detalle de Artículos Incluidos</span>
+            <button onclick="clearRemitoItems()" class="text-xs text-red-600 hover:underline">Vaciar Remito</button>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-gray-50 text-gray-600 font-bold border-b border-gray-200">
+                <tr>
+                  <th class="p-3">Especie</th>
+                  <th class="p-3 text-center">Cantidad</th>
+                  <th class="p-3 text-right">Precio Unit. ($)</th>
+                  <th class="p-3 text-right">Subtotal ($)</th>
+                  <th class="p-3 text-center">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="remito-items-tbody" class="divide-y divide-gray-100">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <div id="remito-empty-msg" class="p-8 text-center text-gray-400">
+            <p class="text-xs">No has agregado elementos al remito aún.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Remito Actions (CON SUBTOTAL, IVA Y TOTAL) -->
+      <div class="p-4 bg-gray-100 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex flex-col space-y-1">
+          <div class="text-xs text-gray-600">
+            Subtotal: <span id="remito-subtotal-price" class="font-bold text-gray-800">$0</span>
+          </div>
+          <div class="flex items-center space-x-2 text-xs">
+            <label class="flex items-center space-x-1 cursor-pointer text-gray-700">
+              <input type="checkbox" id="remito-iva-check" onchange="renderRemitoItemsTable()" class="rounded text-amber-600 focus:ring-amber-500 w-3.5 h-3.5">
+              <span>Agregar IVA (21%)</span>
+            </label>
+            <span id="remito-iva-amount" class="text-gray-500 font-semibold">$0</span>
+          </div>
+          <div>
+            <span class="text-xs text-gray-500">Monto Total del Remito:</span>
+            <span id="remito-total-price" class="text-xl font-black text-amber-800 ml-2">$0</span>
+          </div>
+        </div>
+        <button onclick="generatePDFRemito()" class="w-full sm:w-auto bg-amber-700 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg flex items-center justify-center space-x-2 transition-all">
+          <i data-lucide="printer" class="w-5 h-5"></i>
+          <span>Guardar o Imprimir Remito (PDF)</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL LISTA DE PLANTAS -->
+  <div id="plant-list-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white w-full max-w-4xl h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+      
+      <div class="bg-brand-900 text-white p-4 flex items-center justify-between border-b border-brand-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center">
+            <i data-lucide="list-tree" class="w-5 h-5 text-white"></i>
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold">Gestión de Inventario de Plantas</h3>
+            <p class="text-xs text-brand-300">Modifica precios, nombres y añade nuevas especies</p>
+          </div>
+        </div>
+        <button onclick="closePlantListModal()" class="w-9 h-9 rounded-lg bg-brand-800 hover:bg-brand-700 flex items-center justify-center text-brand-200 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-slate-50">
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+          <h4 class="text-sm font-bold text-brand-900 flex items-center space-x-2">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i>
+            <span>Agregar Nueva Planta</span>
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <input type="text" id="new-plant-id" placeholder="ID (ej: PLN-009)" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+            <input type="text" id="new-plant-name" placeholder="Nombre de la planta" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+            <input type="text" id="new-plant-cat" placeholder="Categoría" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+            <input type="number" id="new-plant-price" placeholder="Precio ($)" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+          </div>
+          <button onclick="addNewPlant()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-lg text-xs shadow transition-all flex items-center justify-center space-x-2">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Guardar Nueva Planta</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+            <span class="text-xs font-bold uppercase text-gray-500 tracking-wider">Lista Actual de Especies</span>
+            <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Cambios directos</span>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-gray-50 text-gray-600 font-bold border-b border-gray-200">
+                <tr>
+                  <th class="p-3">ID</th>
+                  <th class="p-3">Nombre</th>
+                  <th class="p-3">Categoría</th>
+                  <th class="p-3">Precio ($)</th>
+                  <th class="p-3 text-center">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="admin-plants-tbody" class="divide-y divide-gray-100">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JS APP LOGIC -->
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbypmtpoVLh8PopNNdvKo_Ti2ysHSiMWGuXjT6KeOmEgzUDWA1rzTaxJHa9iuey0saHsxw/exec";
+    
+    let isAdminLoggedIn = false;
+
+    let plantas = [
+      { ID: "PLN-001", Nombre: "Algarrobo Blanco", Categoria: "Árboles y Forestales", Precio: 15000, Stock: "Disponible" },
+      { ID: "PLN-002", Nombre: "Jacarandá 10L", Categoria: "Árboles y Forestales", Precio: 21000, Stock: "Disponible" },
+      { ID: "PLN-003", Nombre: "Jazmín del País", Categoria: "Trepadoras y Enredaderas", Precio: 10000, Stock: "Disponible" },
+      { ID: "PLN-004", Nombre: "Limonero Sutil", Categoria: "Frutales y Cítricos", Precio: 25000, Stock: "Disponible" },
+      { ID: "PLN-005", Nombre: "Palmera Pindó", Categoria: "Palmeras y Cycas", Precio: null, Stock: "Sin Stock" },
+      { ID: "PLN-006", Nombre: "Monstera Deliciosa", Categoria: "Plantas de Interior y Tropicales", Precio: 20000, Stock: "Disponible" },
+      { ID: "PLN-007", Nombre: "Lavanda Grande", Categoria: "Aromáticas y Medicinales", Precio: 7500, Stock: "Disponible" },
+      { ID: "PLN-008", Nombre: "Maceta Ciotola N40", Categoria: "Macetas y Accesorios", Precio: 13050, Stock: "Disponible" }
+    ];
+
+    let cart = [];
+    let remitoItems = [];
+    let presupuestoAdminItems = [];
+    let categories = [];
+    let currentSlide = 0;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      fetchPlants();
+      updateCarousel();
+    });
+
+    function updateCarousel() {
+      const slides = document.getElementById("carousel-slides");
+      const dots = document.querySelectorAll(".carousel-dot");
+      if (slides) {
+        slides.style.transform = `translateX(-${currentSlide * 100}%)`;
+      }
+      dots.forEach((dot, idx) => {
+        if (idx === currentSlide) {
+          dot.classList.remove("bg-white/40");
+          dot.classList.add("bg-white", "w-6");
+        } else {
+          dot.classList.remove("bg-white", "w-6");
+          dot.classList.add("bg-white/40");
         }
+      });
+    }
 
-        function poblarCategorias() {
-            const categorias = [...new Set(productos.map(p => p.categoria).filter(Boolean))];
-            const select = document.getElementById('categoryFilter');
-            categorias.forEach(cat => {
-                const opt = document.createElement('option');
-                opt.value = cat;
-                opt.textContent = cat;
-                select.appendChild(opt);
-            });
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % 3;
+      updateCarousel();
+    }
+
+    function prevSlide() {
+      currentSlide = (currentSlide - 1 + 3) % 3;
+      updateCarousel();
+    }
+
+    function goToSlide(index) {
+      currentSlide = index;
+      updateCarousel();
+    }
+
+    async function fetchPlants() {
+      try {
+        if (API_URL && !API_URL.includes("TU_WEB_APP_URL")) {
+          const res = await fetch(API_URL);
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            plantas = data;
+          }
         }
+      } catch (err) {
+        console.warn("Usando catálogo base por defecto:", err);
+      }
+      populateCategories();
+      renderPlantsGrid();
+      populateRemitoSelect();
+      populatePresupuestoAdminSelect();
+    }
 
-        function renderProductos(lista) {
-            const grid = document.getElementById('productGrid');
-            grid.innerHTML = '';
-            lista.forEach(p => {
-                if (p.disponible && p.disponible.toUpperCase() === 'NO') return;
-                const col = document.createElement('div');
-                col.className = 'col-md-6 col-lg-4';
-                col.innerHTML = `
-                    <div class="card card-product h-100 p-3">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <div>
-                                <span class="badge bg-secondary mb-2">${p.categoria || 'General'}</span>
-                                <h6 class="card-title text-uppercase font-weight-bold">${p.nombre}</h6>
-                            </div>
-                            <div class="mt-3">
-                                <p class="fs-5 fw-bold text-success mb-2">$${Number(p.precio).toLocaleString('es-AR')}</p>
-                                <button class="btn btn-sm btn-success w-100" onclick="agregarAlCarrito(${p.id})">
-                                    + Agregar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(col);
-            });
+    function populateCategories() {
+      const cats = [...new Set(plantas.map(p => p.Categoria))].filter(Boolean).sort();
+      categories = cats;
+      const select = document.getElementById("category-select");
+      select.innerHTML = '<option value="TODAS">Todas las Categorías</option>' + 
+        cats.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
+    function renderPlantsGrid(itemsToRender = plantas) {
+      const grid = document.getElementById("plants-grid");
+      const noResults = document.getElementById("no-results");
+
+      if (itemsToRender.length === 0) {
+        grid.innerHTML = "";
+        noResults.classList.remove("hidden");
+        return;
+      }
+
+      noResults.classList.add("hidden");
+      grid.innerHTML = itemsToRender.map(p => {
+        const hasPrice = p.Precio !== null && p.Precio !== undefined && p.Precio !== "" && Number(p.Precio) > 0;
+        const precioFmt = hasPrice 
+          ? `$${Number(p.Precio).toLocaleString('es-AR')}` 
+          : `<span class="text-red-600 font-bold">Sin Stock</span>`;
+        
+        const btnAttr = hasPrice 
+          ? `onclick="addToCart('${p.ID}')" class="bg-brand-600 hover:bg-brand-500 text-white p-2 rounded-lg text-xs font-semibold flex items-center space-x-1 shadow-sm transition-transform active:scale-95"` 
+          : `disabled class="bg-gray-300 text-gray-500 p-2 rounded-lg text-xs font-semibold flex items-center space-x-1 cursor-not-allowed opacity-60"`;
+
+        return `
+          <div class="bg-white border border-gray-200 rounded-xl p-4 flex flex-col justify-between hover:shadow-md transition-all group">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full inline-block mb-2">${p.Categoria || 'General'}</span>
+              <h4 class="font-bold text-gray-900 text-sm group-hover:text-brand-600 transition-colors">${p.Nombre}</h4>
+              <span class="text-[11px] text-gray-400 font-mono block mt-0.5">ID: ${p.ID}</span>
+            </div>
+            
+            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+              <span class="text-base font-extrabold text-gray-900">${precioFmt}</span>
+              <button ${btnAttr}>
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span class="hidden sm:inline">Agregar</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function filterPlants() {
+      const search = document.getElementById("search-input").value.toLowerCase().trim();
+      const cat = document.getElementById("category-select").value;
+
+      const filtered = plantas.filter(p => {
+        const matchesName = p.Nombre.toLowerCase().includes(search) || p.ID.toLowerCase().includes(search);
+        const matchesCat = cat === "TODAS" || p.Categoria === cat;
+        return matchesName && matchesCat;
+      });
+
+      renderPlantsGrid(filtered);
+    }
+
+    // CART OPERATIONS (PRESUPUESTO CLIENTES)
+    function addToCart(plantId) {
+      const plant = plantas.find(p => p.ID === plantId);
+      if (!plant) return;
+
+      const hasPrice = plant.Precio !== null && plant.Precio !== undefined && plant.Precio !== "" && Number(plant.Precio) > 0;
+      if (!hasPrice) return;
+
+      const existingIndex = cart.findIndex(item => item.ID === plantId);
+      if (existingIndex > -1) {
+        cart[existingIndex].cantidad += 1;
+      } else {
+        cart.push({ ...plant, cantidad: 1 });
+      }
+      updateCartUI();
+    }
+
+    function updateQuantity(plantId, change) {
+      const index = cart.findIndex(item => item.ID === plantId);
+      if (index > -1) {
+        cart[index].cantidad += change;
+        if (cart[index].cantidad <= 0) {
+          cart.splice(index, 1);
         }
+      }
+      updateCartUI();
+    }
 
-        function filtrarProductos() {
-            const text = document.getElementById('searchInput').value.toLowerCase();
-            const cat = document.getElementById('categoryFilter').value;
-            const filtrados = productos.filter(p => {
-                const coincideTexto = p.nombre.toLowerCase().includes(text);
-                const coincideCat = cat === '' || p.categoria === cat;
-                return coincideTexto && coincideCat;
-            });
-            renderProductos(filtrados);
+    function clearCart() {
+      cart = [];
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const cartList = document.getElementById("cart-list");
+      const emptyMsg = document.getElementById("empty-cart-msg");
+      
+      const totalCount = cart.reduce((sum, item) => sum + item.cantidad, 0);
+      const totalPrice = cart.reduce((sum, item) => sum + (Number(item.Precio || 0) * item.cantidad), 0);
+
+      if (totalCount > 0) {
+        emptyMsg.classList.add("hidden");
+      } else {
+        emptyMsg.classList.remove("hidden");
+      }
+
+      document.getElementById("cart-item-count").innerText = totalCount;
+      document.getElementById("cart-total-price").innerText = `$${totalPrice.toLocaleString('es-AR')}`;
+
+      cartList.innerHTML = cart.map(item => `
+        <li class="p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between text-xs">
+          <div class="pr-2">
+            <h5 class="font-bold text-gray-800">${item.Nombre}</h5>
+            <span class="text-gray-500 font-semibold">$${Number(item.Precio || 0).toLocaleString('es-AR')} c/u</span>
+          </div>
+          <div class="flex items-center space-x-2 bg-white px-2 py-1 rounded-lg border border-gray-200">
+            <button onclick="updateQuantity('${item.ID}', -1)" class="text-gray-500 hover:text-red-600 font-bold px-1">-</button>
+            <span class="font-bold text-gray-800 text-xs">${item.cantidad}</span>
+            <button onclick="updateQuantity('${item.ID}', 1)" class="text-gray-500 hover:text-brand-600 font-bold px-1">+</button>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    // PRESUPUESTO ADMIN LOGIC (EXACTO A REMITO)
+    function openPresupuestoAdminModal() {
+      if (!isAdminLoggedIn) return;
+      populatePresupuestoAdminSelect();
+      renderPresupuestoAdminItemsTable();
+      const modal = document.getElementById("presupuesto-admin-modal");
+      modal.classList.remove("hidden");
+      setTimeout(() => modal.classList.remove("opacity-0"), 10);
+    }
+
+    function closePresupuestoAdminModal() {
+      const modal = document.getElementById("presupuesto-admin-modal");
+      modal.classList.add("opacity-0");
+      setTimeout(() => modal.classList.add("hidden"), 300);
+    }
+
+    function populatePresupuestoAdminSelect() {
+      const select = document.getElementById("presupuesto-admin-plant-select");
+      const addBtn = document.getElementById("presupuesto-admin-add-btn");
+      if (!select) return;
+      
+      select.innerHTML = plantas.map(p => {
+        const hasPrice = p.Precio !== null && p.Precio !== undefined && p.Precio !== "" && Number(p.Precio) > 0;
+        const statusText = hasPrice ? `$${Number(p.Precio).toLocaleString('es-AR')}` : "Sin Stock";
+        return `<option value="${p.ID}" data-hasprice="${hasPrice}">${p.Nombre} - ${statusText}</option>`;
+      }).join('');
+
+      const checkSelectedPlant = () => {
+        const selectedOpt = select.options[select.selectedIndex];
+        const isAvailable = selectedOpt && selectedOpt.getAttribute("data-hasprice") === "true";
+        if (addBtn) {
+          if (!isAvailable) {
+            addBtn.disabled = true;
+            addBtn.classList.add("opacity-50", "cursor-not-allowed");
+          } else {
+            addBtn.disabled = false;
+            addBtn.classList.remove("opacity-50", "cursor-not-allowed");
+          }
         }
+      };
 
-        function agregarAlCarrito(id) {
-            const prod = productos.find(p => p.id == id);
-            const existe = carrito.find(item => item.id == id);
-            if (existe) {
-                existe.cantidad++;
-            } else {
-                carrito.push({ ...prod, cantidad: 1 });
-            }
-            actualizarCarritoUI();
+      select.onchange = checkSelectedPlant;
+      checkSelectedPlant();
+    }
+
+    function addPlantToPresupuestoAdmin() {
+      const select = document.getElementById("presupuesto-admin-plant-select");
+      const plantId = select.value;
+      const qtyInput = document.getElementById("presupuesto-admin-plant-qty");
+      const cantidad = parseInt(qtyInput.value) || 1;
+
+      const plant = plantas.find(p => p.ID === plantId);
+      if (!plant) return;
+
+      const hasPrice = plant.Precio !== null && plant.Precio !== undefined && plant.Precio !== "" && Number(plant.Precio) > 0;
+      if (!hasPrice) return;
+
+      const existingIndex = presupuestoAdminItems.findIndex(i => i.ID === plantId);
+      if (existingIndex > -1) {
+        presupuestoAdminItems[existingIndex].cantidad += cantidad;
+      } else {
+        presupuestoAdminItems.push({
+          ID: plant.ID,
+          Nombre: plant.Nombre,
+          Categoria: plant.Categoria,
+          Precio: plant.Precio,
+          cantidad: cantidad
+        });
+      }
+
+      renderPresupuestoAdminItemsTable();
+    }
+
+    function updatePresupuestoAdminItemQty(index, newQty) {
+      const qty = parseInt(newQty);
+      if (isNaN(qty) || qty <= 0) {
+        presupuestoAdminItems.splice(index, 1);
+      } else {
+        presupuestoAdminItems[index].cantidad = qty;
+      }
+      renderPresupuestoAdminItemsTable();
+    }
+
+    function removePresupuestoAdminItem(index) {
+      presupuestoAdminItems.splice(index, 1);
+      renderPresupuestoAdminItemsTable();
+    }
+
+    function clearPresupuestoAdminItems() {
+      presupuestoAdminItems = [];
+      renderPresupuestoAdminItemsTable();
+    }
+
+    function renderPresupuestoAdminItemsTable() {
+      const tbody = document.getElementById("presupuesto-admin-items-tbody");
+      const emptyMsg = document.getElementById("presupuesto-admin-empty-msg");
+      const subtotalEl = document.getElementById("presupuesto-admin-subtotal-price");
+      const ivaAmountEl = document.getElementById("presupuesto-admin-iva-amount");
+      const totalPriceEl = document.getElementById("presupuesto-admin-total-price");
+
+      if (presupuestoAdminItems.length === 0) {
+        tbody.innerHTML = "";
+        emptyMsg.classList.remove("hidden");
+        subtotalEl.innerText = "$0";
+        ivaAmountEl.innerText = "$0";
+        totalPriceEl.innerText = "$0";
+        return;
+      }
+
+      emptyMsg.classList.add("hidden");
+      let subtotal = 0;
+
+      tbody.innerHTML = presupuestoAdminItems.map((item, idx) => {
+        const itemSubtotal = Number(item.Precio || 0) * item.cantidad;
+        subtotal += itemSubtotal;
+        return `
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="p-3 font-semibold text-gray-800">${item.Nombre}</td>
+            <td class="p-3 text-center">
+              <input type="number" min="1" value="${item.cantidad}" onchange="updatePresupuestoAdminItemQty(${idx}, this.value)" class="w-16 px-2 py-1 text-center border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white font-bold">
+            </td>
+            <td class="p-3 text-right text-gray-600">$${Number(item.Precio || 0).toLocaleString('es-AR')}</td>
+            <td class="p-3 text-right font-bold text-gray-900">$${itemSubtotal.toLocaleString('es-AR')}</td>
+            <td class="p-3 text-center">
+              <button onclick="removePresupuestoAdminItem(${idx})" class="text-red-500 hover:text-red-700 p-1">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      const ivaChecked = document.getElementById("presupuesto-admin-iva-check") ? document.getElementById("presupuesto-admin-iva-check").checked : false;
+      const ivaAmount = ivaChecked ? subtotal * 0.21 : 0;
+      const total = subtotal + ivaAmount;
+
+      subtotalEl.innerText = `$${subtotal.toLocaleString('es-AR')}`;
+      ivaAmountEl.innerText = `$${ivaAmount.toLocaleString('es-AR')}`;
+      totalPriceEl.innerText = `$${total.toLocaleString('es-AR')}`;
+      
+      lucide.createIcons();
+    }
+
+    function generatePDFPresupuestoAdmin() {
+      if (presupuestoAdminItems.length === 0) {
+        alert("Agrega al menos una planta al presupuesto antes de generar el PDF.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+      const clientName = document.getElementById("presupuesto-admin-client-name").value || "Cliente Particular";
+      const clientPhone = document.getElementById("presupuesto-admin-client-phone").value || "No especificado";
+      const today = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+      const budgetNum = "PRE-" + Math.floor(1000 + Math.random() * 9000);
+
+      const primaryGreen = [37, 97, 60];
+      const darkGreen = [14, 35, 23];
+      const lightBg = [242, 249, 244];
+      const textDark = [45, 55, 72];
+
+      doc.setFillColor(...darkGreen);
+      doc.rect(0, 0, 210, 42, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.text("VIVERO CALADIO", 14, 20);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(180, 225, 195);
+      doc.text("De José Luis Romero • Producción Propia y Asesoramiento", 14, 27);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`PRESUPUESTO #${budgetNum}`, 196, 20, { align: 'right' });
+      
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(200, 230, 210);
+      doc.text(`Fecha: ${today}`, 196, 27, { align: 'right' });
+
+      doc.setFillColor(...lightBg);
+      doc.roundedRect(14, 48, 88, 30, 3, 3, 'F');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...primaryGreen);
+      doc.text("DATOS DEL EMISOR", 18, 54);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(...textDark);
+      doc.text("Av. Felix de la Colina (Acceso Sur) - La Rioja", 18, 60);
+      doc.text("Cel: (380) 154387678", 18, 65);
+      doc.text("CUIT: 23-16733906-9", 18, 70);
+
+      doc.setFillColor(...lightBg);
+      doc.roundedRect(108, 48, 88, 30, 3, 3, 'F');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...primaryGreen);
+      doc.text("PREPARADO PARA", 112, 54);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(...textDark);
+      doc.text(clientName, 112, 61);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.text(`Teléfono: ${clientPhone}`, 112, 67);
+
+      const tableData = presupuestoAdminItems.map((item, idx) => {
+        const totalItem = Number(item.Precio || 0) * item.cantidad;
+        return [
+          idx + 1,
+          item.Nombre,
+          item.Categoria || 'General',
+          item.cantidad,
+          `$ ${Number(item.Precio || 0).toLocaleString('es-AR')}`,
+          `$ ${totalItem.toLocaleString('es-AR')}`
+        ];
+      });
+
+      const subtotal = presupuestoAdminItems.reduce((sum, item) => sum + (Number(item.Precio || 0) * item.cantidad), 0);
+      const ivaChecked = document.getElementById("presupuesto-admin-iva-check") ? document.getElementById("presupuesto-admin-iva-check").checked : false;
+      const ivaAmount = ivaChecked ? subtotal * 0.21 : 0;
+      const totalCalculated = subtotal + ivaAmount;
+
+      doc.autoTable({
+        startY: 84,
+        head: [['#', 'Especie / Descripción', 'Categoría', 'Cant.', 'P. Unitario', 'Total']],
+        body: tableData,
+        headStyles: {
+          fillColor: primaryGreen,
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 8.5,
+          halign: 'left'
+        },
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 10 },
+          1: { halign: 'left' },
+          2: { halign: 'left', cellWidth: 40 },
+          3: { halign: 'center', cellWidth: 15 },
+          4: { halign: 'right', cellWidth: 28 },
+          5: { halign: 'right', cellWidth: 32 }
+        },
+        alternateRowStyles: { fillColor: [248, 252, 249] },
+        styles: { fontSize: 8.5, cellPadding: 3.5, textColor: textDark },
+        margin: { left: 14, right: 14 }
+      });
+
+      const finalY = doc.lastAutoTable.finalY + 8;
+
+      let boxHeight = 16;
+      if (ivaChecked) boxHeight = 24;
+
+      doc.setFillColor(...primaryGreen);
+      doc.roundedRect(110, finalY, 86, boxHeight, 3, 3, 'F');
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(255, 255, 255);
+
+      if (ivaChecked) {
+        doc.text("Subtotal:", 114, finalY + 6);
+        doc.text(`$ ${subtotal.toLocaleString('es-AR')}`, 190, finalY + 6, { align: 'right' });
+
+        doc.text("IVA (21%):", 114, finalY + 11);
+        doc.text(`$ ${ivaAmount.toLocaleString('es-AR')}`, 190, finalY + 11, { align: 'right' });
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.text("TOTAL ESTIMADO", 114, finalY + 18);
+        doc.setFontSize(11);
+        doc.text(`$ ${totalCalculated.toLocaleString('es-AR')}`, 190, finalY + 18, { align: 'right' });
+      } else {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.text("TOTAL ESTIMADO", 114, finalY + 10);
+        doc.setFontSize(12);
+        doc.text(`$ ${totalCalculated.toLocaleString('es-AR')}`, 190, finalY + 10, { align: 'right' });
+      }
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text("• Precios sujetos a modificación según disponibilidad de stock en cultivo.", 14, finalY + boxHeight + 12);
+      doc.text("• Validez de esta cotización: 15 días desde la fecha de emisión.", 14, finalY + boxHeight + 17);
+      doc.text("¡Gracias por elegir Vivero Caladio para verdear tus espacios!", 14, finalY + boxHeight + 22);
+
+      doc.save(`Presupuesto_Vivero_Caladio_${budgetNum}.pdf`);
+    }
+
+    // REMITO LOGIC
+    function openRemitoModal() {
+      if (!isAdminLoggedIn) return;
+      populateRemitoSelect();
+      renderRemitoItemsTable();
+      const modal = document.getElementById("remito-modal");
+      modal.classList.remove("hidden");
+      setTimeout(() => modal.classList.remove("opacity-0"), 10);
+    }
+
+    function closeRemitoModal() {
+      const modal = document.getElementById("remito-modal");
+      modal.classList.add("opacity-0");
+      setTimeout(() => modal.classList.add("hidden"), 300);
+    }
+
+    function populateRemitoSelect() {
+      const select = document.getElementById("remito-plant-select");
+      const addBtn = document.getElementById("remito-add-btn");
+      if (!select) return;
+      
+      select.innerHTML = plantas.map(p => {
+        const hasPrice = p.Precio !== null && p.Precio !== undefined && p.Precio !== "" && Number(p.Precio) > 0;
+        const statusText = hasPrice ? `$${Number(p.Precio).toLocaleString('es-AR')}` : "Sin Stock";
+        return `<option value="${p.ID}" data-hasprice="${hasPrice}">${p.Nombre} - ${statusText}</option>`;
+      }).join('');
+
+      const checkSelectedPlant = () => {
+        const selectedOpt = select.options[select.selectedIndex];
+        const isAvailable = selectedOpt && selectedOpt.getAttribute("data-hasprice") === "true";
+        if (addBtn) {
+          if (!isAvailable) {
+            addBtn.disabled = true;
+            addBtn.classList.add("opacity-50", "cursor-not-allowed");
+          } else {
+            addBtn.disabled = false;
+            addBtn.classList.remove("opacity-50", "cursor-not-allowed");
+          }
         }
+      };
 
-        function cambiarCantidad(id, delta) {
-            const item = carrito.find(i => i.id == id);
-            if (item) {
-                item.cantidad += delta;
-                if (item.cantidad <= 0) {
-                    carrito = carrito.filter(i => i.id != id);
-                }
-            }
-            actualizarCarritoUI();
-        }
+      select.onchange = checkSelectedPlant;
+      checkSelectedPlant();
+    }
 
-        function actualizarCarritoUI() {
-            const cartItems = document.getElementById('cartItems');
-            const cartTotal = document.getElementById('cartTotal');
-            const btnPDF = document.getElementById('btnPDF');
+    function addPlantToRemito() {
+      const select = document.getElementById("remito-plant-select");
+      const plantId = select.value;
+      const qtyInput = document.getElementById("remito-plant-qty");
+      const cantidad = parseInt(qtyInput.value) || 1;
 
-            if (carrito.length === 0) {
-                cartItems.innerHTML = '<p class="text-muted text-center py-3">No has seleccionado ningún producto aún.</p>';
-                cartTotal.textContent = '$0';
-                btnPDF.disabled = true;
-                return;
-            }
+      const plant = plantas.find(p => p.ID === plantId);
+      if (!plant) return;
 
-            btnPDF.disabled = false;
-            cartItems.innerHTML = '';
-            let total = 0;
+      const hasPrice = plant.Precio !== null && plant.Precio !== undefined && plant.Precio !== "" && Number(plant.Precio) > 0;
+      if (!hasPrice) return;
 
-            carrito.forEach(item => {
-                const subtotal = item.precio * item.cantidad;
-                total += subtotal;
+      const existingIndex = remitoItems.findIndex(i => i.ID === plantId);
+      if (existingIndex > -1) {
+        remitoItems[existingIndex].cantidad += cantidad;
+      } else {
+        remitoItems.push({
+          ID: plant.ID,
+          Nombre: plant.Nombre,
+          Categoria: plant.Categoria,
+          Precio: plant.Precio,
+          cantidad: cantidad
+        });
+      }
 
-                const div = document.createElement('div');
-                div.className = 'd-flex justify-content-between align-items-center mb-2 pb-2 border-bottom';
-                div.innerHTML = `
-                    <div>
-                        <small class="fw-bold d-block">${item.nombre}</small>
-                        <small class="text-muted">$${Number(item.precio).toLocaleString('es-AR')} c/u</small>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <button class="btn btn-sm btn-outline-danger px-2 py-0" onclick="cambiarCantidad(${item.id}, -1)">-</button>
-                        <span class="mx-2 font-weight-bold">${item.cantidad}</span>
-                        <button class="btn btn-sm btn-outline-success px-2 py-0" onclick="cambiarCantidad(${item.id}, 1)">+</button>
-                    </div>
-                `;
-                cartItems.appendChild(div);
-            });
+      renderRemitoItemsTable();
+    }
 
-            cartTotal.textContent = `$${total.toLocaleString('es-AR')}`;
-        }
+    function updateRemitoItemQty(index, newQty) {
+      const qty = parseInt(newQty);
+      if (isNaN(qty) || qty <= 0) {
+        remitoItems.splice(index, 1);
+      } else {
+        remitoItems[index].cantidad = qty;
+      }
+      renderRemitoItemsTable();
+    }
 
-        function generarPDF() {
-            document.getElementById('pdfFecha').textContent = `Fecha de emisión: ${new Date().toLocaleDateString('es-AR')}`;
-            const pdfTableBody = document.getElementById('pdfTableBody');
-            pdfTableBody.innerHTML = '';
-            let total = 0;
+    function removeRemitoItem(index) {
+      remitoItems.splice(index, 1);
+      renderRemitoItemsTable();
+    }
 
-            carrito.forEach(item => {
-                const subtotal = item.precio * item.cantidad;
-                total += subtotal;
-                const tr = document.createElement('tr');
-                tr.style.borderBottom = '1px solid #eee';
-                tr.innerHTML = `
-                    <td style="padding: 8px;">${item.nombre}</td>
-                    <td style="padding: 8px; text-align: center;">${item.cantidad}</td>
-                    <td style="padding: 8px; text-align: right;">$${Number(item.precio).toLocaleString('es-AR')}</td>
-                    <td style="padding: 8px; text-align: right;">$${subtotal.toLocaleString('es-AR')}</td>
-                `;
-                pdfTableBody.appendChild(tr);
-            });
+    function clearRemitoItems() {
+      remitoItems = [];
+      renderRemitoItemsTable();
+    }
 
-            document.getElementById('pdfTotal').textContent = `$${total.toLocaleString('es-AR')}`;
+    function renderRemitoItemsTable() {
+      const tbody = document.getElementById("remito-items-tbody");
+      const emptyMsg = document.getElementById("remito-empty-msg");
+      const subtotalEl = document.getElementById("remito-subtotal-price");
+      const ivaAmountEl = document.getElementById("remito-iva-amount");
+      const totalPriceEl = document.getElementById("remito-total-price");
 
-            const element = document.getElementById('pdfContainer');
-            element.style.display = 'block';
+      if (remitoItems.length === 0) {
+        tbody.innerHTML = "";
+        emptyMsg.classList.remove("hidden");
+        subtotalEl.innerText = "$0";
+        ivaAmountEl.innerText = "$0";
+        totalPriceEl.innerText = "$0";
+        return;
+      }
 
-            const opt = {
-                margin:       0.5,
-                filename:     `Presupuesto_Vivero_${new Date().toISOString().slice(0,10)}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
+      emptyMsg.classList.add("hidden");
+      let subtotal = 0;
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.style.display = 'none';
-            });
-        }
+      tbody.innerHTML = remitoItems.map((item, idx) => {
+        const itemSubtotal = Number(item.Precio || 0) * item.cantidad;
+        subtotal += itemSubtotal;
+        return `
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="p-3 font-semibold text-gray-800">${item.Nombre}</td>
+            <td class="p-3 text-center">
+              <input type="number" min="1" value="${item.cantidad}" onchange="updateRemitoItemQty(${idx}, this.value)" class="w-16 px-2 py-1 text-center border border-gray-200 rounded focus:border-amber-500 outline-none bg-white font-bold">
+            </td>
+            <td class="p-3 text-right text-gray-600">$${Number(item.Precio || 0).toLocaleString('es-AR')}</td>
+            <td class="p-3 text-right font-bold text-gray-900">$${itemSubtotal.toLocaleString('es-AR')}</td>
+            <td class="p-3 text-center">
+              <button onclick="removeRemitoItem(${idx})" class="text-red-500 hover:text-red-700 p-1">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
 
-        cargarProductos();
-    </script>
+      const ivaChecked = document.getElementById("remito-iva-check") ? document.getElementById("remito-iva-check").checked : false;
+      const ivaAmount = ivaChecked ? subtotal * 0.21 : 0;
+      const total = subtotal + ivaAmount;
+
+      subtotalEl.innerText = `$${subtotal.toLocaleString('es-AR')}`;
+      ivaAmountEl.innerText = `$${ivaAmount.toLocaleString('es-AR')}`;
+      totalPriceEl.innerText = `$${total.toLocaleString('es-AR')}`;
+      
+      lucide.createIcons();
+    }
+
+    // MODAL VISIBILITY HANDLERS
+    function openCatalogModal() {
+      const modal = document.getElementById("catalog-modal");
+      modal.classList.remove("hidden");
+      setTimeout(() => modal.classList.remove("opacity-0"), 10);
+    }
+
+    function closeCatalogModal() {
+      const modal = document.getElementById("catalog-modal");
+      modal.classList.add("opacity-0");
+      setTimeout(() => modal.classList.add("hidden"), 300);
+    }
+
+    function openAdminModal() {
+      const modal = document.getElementById("admin-modal");
+      modal.classList.remove("hidden");
+      setTimeout(() => modal.classList.remove("opacity-0"), 10);
+    }
+
+    function closeAdminModal() {
+      const modal = document.getElementById("admin-modal");
+      modal.classList.add("opacity-0");
+      setTimeout(() => modal.classList.add("hidden"), 300);
+    }
+
+    function openPlantListModal() {
+      if (!isAdminLoggedIn) return;
+      renderAdminPlantsTable();
+      const modal = document.getElementById("plant-list-modal");
+      modal.classList.remove("hidden");
+      setTimeout(() => modal.classList.remove("opacity-0"), 10);
+    }
+
+    function closePlantListModal() {
+      const modal = document.getElementById("plant-list-modal");
+      modal.classList.add("opacity-0");
+      setTimeout(() => modal.classList.add("hidden"), 300);
+    }
+
+    // ADMIN CRUD LOGIC
+    function renderAdminPlantsTable() {
+      const tbody = document.getElementById("admin-plants-tbody");
+      tbody.innerHTML = plantas.map((p, idx) => `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="p-3 font-mono font-bold text-gray-500">${p.ID}</td>
+          <td class="p-3">
+            <input type="text" id="edit-name-${idx}" value="${p.Nombre}" class="w-full px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white">
+          </td>
+          <td class="p-3 text-gray-500">${p.Categoria || 'General'}</td>
+          <td class="p-3">
+            <input type="number" id="edit-price-${idx}" value="${p.Precio !== null && p.Precio !== undefined ? p.Precio : ''}" placeholder="Sin Stock" class="w-24 px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white font-bold">
+          </td>
+          <td class="p-3 text-center">
+            <button onclick="savePlantRow(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-xs font-bold transition-colors">
+              Guardar
+            </button>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function savePlantRow(idx) {
+      const newName = document.getElementById(`edit-name-${idx}`).value.trim();
+      const rawPrice = document.getElementById(`edit-price-${idx}`).value;
+      const newPrice = rawPrice !== "" && !isNaN(parseFloat(rawPrice)) ? parseFloat(rawPrice) : null;
+
+      if (!newName) {
+        alert("Por favor ingresa un nombre válido.");
+        return;
+      }
+
+      plantas[idx].Nombre = newName;
+      plantas[idx].Precio = newPrice;
+      plantas[idx].Stock = newPrice !== null ? "Disponible" : "Sin Stock";
+
+      populateCategories();
+      renderPlantsGrid();
+      populateRemitoSelect();
+      populatePresupuestoAdminSelect();
+      alert(`Planta "${newName}" actualizada exitosamente.`);
+    }
+
+    function addNewPlant() {
+      const id = document.getElementById("new-plant-id").value.trim();
+      const name = document.getElementById("new-plant-name").value.trim();
+      const cat = document.getElementById("new-plant-cat").value.trim() || "General";
+      const rawPrice = document.getElementById("new-plant-price").value;
+      const price = rawPrice !== "" && !isNaN(parseFloat(rawPrice)) ? parseFloat(rawPrice) : null;
+
+      if (!id || !name) {
+        alert("Ingresa un ID y nombre válidos para crear la planta.");
+        return;
+      }
+
+      plantas.unshift({
+        ID: id,
+        Nombre: name,
+        Categoria: cat,
+        Precio: price,
+        Stock: price !== null ? "Disponible" : "Sin Stock"
+      });
+
+      document.getElementById("new-plant-id").value = "";
+      document.getElementById("new-plant-name").value = "";
+      document.getElementById("new-plant-cat").value = "";
+      document.getElementById("new-plant-price").value = "";
+
+      populateCategories();
+      renderPlantsGrid();
+      renderAdminPlantsTable();
+      populateRemitoSelect();
+      populatePresupuestoAdminSelect();
+      alert(`Planta "${name}" agregada con éxito.`);
+    }
+
+    // EXPORTAR REMITO PDF
+    function generatePDFRemito() {
+      if (remitoItems.length === 0) {
+        alert("Agrega al menos una planta al remito antes de generar el PDF.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+      const clientName = document.getElementById("remito-client-name").value || "Cliente Particular";
+      const clientPhone = document.getElementById("remito-client-phone").value || "No especificado";
+      const clientAddress = document.getElementById("remito-client-address").value || "Retira en Vivero";
+      const today = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+      const remitoNum = "REM-" + Math.floor(1000 + Math.random() * 9000);
+
+      const primaryColor = [37, 97, 60];
+      const darkColor = [14, 35, 23];
+      const lightBg = [242, 249, 244];
+      const textDark = [45, 55, 72];
+
+      doc.setFillColor(...darkColor);
+      doc.rect(0, 0, 210, 42, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.text("VIVERO CALADIO", 14, 20);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(180, 225, 195);
+      doc.text("De José Luis Romero • Producción Propia y Asesoramiento", 14, 27);
+      doc.text("ESTE DOCUMENTO NO ES VALIDO COMO FACTURA", 14, 34);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`REMITO DE ENTREGA #${remitoNum}`, 196, 20, { align: 'right' });
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(200, 230, 210);
+      doc.text(`Fecha: ${today}`, 196, 27, { align: 'right' });
+
+      doc.setFillColor(...lightBg);
+      doc.roundedRect(14, 48, 88, 32, 3, 3, 'F');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...primaryColor);
+      doc.text("DATOS DEL EMISOR", 18, 54);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(...textDark);
+      doc.text("Av. Felix de la Colina (Acceso Sur) - La Rioja", 18, 60);
+      doc.text("Cel: (380) 154387678", 18, 65);
+      doc.text("CUIT: 23-16733906-9", 18, 70);
+
+      doc.setFillColor(...lightBg);
+      doc.roundedRect(108, 48, 88, 32, 3, 3, 'F');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...primaryColor);
+      doc.text("RECEPTOR / DESTINATARIO", 112, 54);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(...textDark);
+      doc.text(clientName, 112, 61);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.text(`Teléfono: ${clientPhone}`, 112, 67);
+      doc.text(`Dirección: ${clientAddress}`, 112, 72);
+
+      const tableData = remitoItems.map((item, idx) => {
+        const totalItem = Number(item.Precio || 0) * item.cantidad;
+        return [
+          idx + 1,
+          item.Nombre,
+          item.cantidad,
+          `$ ${Number(item.Precio || 0).toLocaleString('es-AR')}`,
+          `$ ${totalItem.toLocaleString('es-AR')}`
+        ];
+      });
+
+      const subtotal = remitoItems.reduce((sum, item) => sum + (Number(item.Precio || 0) * item.cantidad), 0);
+      const ivaChecked = document.getElementById("remito-iva-check") ? document.getElementById("remito-iva-check").checked : false;
+      const ivaAmount = ivaChecked ? subtotal * 0.21 : 0;
+      const totalCalculated = subtotal + ivaAmount;
+
+      doc.autoTable({
+        startY: 86,
+        head: [['#', 'Especie / Producto', 'Cant.', 'P. Unitario', 'Total']],
+        body: tableData,
+        headStyles: {
+          fillColor: primaryColor,
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 8.5,
+          halign: 'left'
+        },
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 10 },
+          1: { halign: 'left' },
+          2: { halign: 'center', cellWidth: 20 },
+          3: { halign: 'right', cellWidth: 32 },
+          4: { halign: 'right', cellWidth: 35 }
+        },
+        alternateRowStyles: { fillColor: [248, 252, 249] },
+        styles: { fontSize: 8.5, cellPadding: 3.5, textColor: textDark },
+        margin: { left: 14, right: 14 }
+      });
+
+      const finalY = doc.lastAutoTable.finalY + 8;
+
+      let boxHeight = 16;
+      if (ivaChecked) boxHeight = 24;
+
+      doc.setFillColor(...primaryColor);
+      doc.roundedRect(110, finalY, 86, boxHeight, 3, 3, 'F');
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(255, 255, 255);
+
+      if (ivaChecked) {
+        doc.text("Subtotal:", 114, finalY + 6);
+        doc.text(`$ ${subtotal.toLocaleString('es-AR')}`, 190, finalY + 6, { align: 'right' });
+
+        doc.text("IVA (21%):", 114, finalY + 11);
+        doc.text(`$ ${ivaAmount.toLocaleString('es-AR')}`, 190, finalY + 11, { align: 'right' });
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.text("TOTAL REMITO", 114, finalY + 18);
+        doc.setFontSize(11);
+        doc.text(`$ ${totalCalculated.toLocaleString('es-AR')}`, 190, finalY + 18, { align: 'right' });
+      } else {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.text("TOTAL REMITO", 114, finalY + 10);
+        doc.setFontSize(12);
+        doc.text(`$ ${totalCalculated.toLocaleString('es-AR')}`, 190, finalY + 10, { align: 'right' });
+      }
+
+      const signatureY = finalY + boxHeight + 20;
+      doc.setDrawColor(180, 180, 180);
+      doc.line(20, signatureY, 80, signatureY);
+      doc.line(130, signatureY, 190, signatureY);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Firma Entregado (Vivero)", 32, signatureY + 5);
+      doc.text("Firma Recibido Conforme", 142, signatureY + 5);
+
+      doc.save(`Remito_Vivero_Caladio_${remitoNum}.pdf`);
+    }
+
+    // EXPORTAR PRESUPUESTO PDF CLIENTES
+    function generatePDFBudget() {
+      if (cart.length === 0) {
+        alert("Agrega al menos una planta al presupuesto antes de exportar.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+      const clientName = document.getElementById("client-name").value || "Cliente Particular";
+      const clientPhone = document.getElementById("client-phone").value || "No especificado";
+      const today = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+      const budgetNum = "PRE-" + Math.floor(1000 + Math.random() * 9000);
+
+      const primaryGreen = [37, 97, 60];
+      const darkGreen = [14, 35, 23];
+      const lightBg = [242, 249, 244];
+      const textDark = [45, 55, 72];
+
+      doc.setFillColor(...darkGreen);
+      doc.rect(0, 0, 210, 42, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.text("VIVERO CALADIO", 14, 20);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(180, 225, 195);
+      doc.text("De José Luis Romero • Producción Propia y Asesoramiento", 14, 27);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`PRESUPUESTO #${budgetNum}`, 196, 20, { align: 'right' });
+      
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(200, 230, 210);
+      doc.text(`Fecha: ${today}`, 196, 27, { align: 'right' });
+
+      doc.setFillColor(...lightBg);
+      doc.roundedRect(14, 48, 88, 30, 3, 3, 'F');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...primaryGreen);
+      doc.text("DATOS DEL EMISOR", 18, 54);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(...textDark);
+      doc.text("Av. Felix de la Colina (Acceso Sur) - La Rioja", 18, 60);
+      doc.text("Cel: (380) 154387678", 18, 65);
+      doc.text("CUIT: 23-16733906-9", 18, 70);
+
+      doc.setFillColor(...lightBg);
+      doc.roundedRect(108, 48, 88, 30, 3, 3, 'F');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...primaryGreen);
+      doc.text("PREPARADO PARA", 112, 54);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(...textDark);
+      doc.text(clientName, 112, 61);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.text(`Teléfono: ${clientPhone}`, 112, 67);
+
+      const tableData = cart.map((item, idx) => {
+        const totalItem = Number(item.Precio || 0) * item.cantidad;
+        return [
+          idx + 1,
+          item.Nombre,
+          item.Categoria || 'General',
+          item.cantidad,
+          `$ ${Number(item.Precio || 0).toLocaleString('es-AR')}`,
+          `$ ${totalItem.toLocaleString('es-AR')}`
+        ];
+      });
+
+      const totalCalculated = cart.reduce((sum, item) => sum + (Number(item.Precio || 0) * item.cantidad), 0);
+
+      doc.autoTable({
+        startY: 84,
+        head: [['#', 'Especie / Descripción', 'Categoría', 'Cant.', 'P. Unitario', 'Total']],
+        body: tableData,
+        headStyles: {
+          fillColor: primaryGreen,
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 8.5,
+          halign: 'left'
+        },
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 10 },
+          1: { halign: 'left' },
+          2: { halign: 'left', cellWidth: 40 },
+          3: { halign: 'center', cellWidth: 15 },
+          4: { halign: 'right', cellWidth: 28 },
+          5: { halign: 'right', cellWidth: 32 }
+        },
+        alternateRowStyles: { fillColor: [248, 252, 249] },
+        styles: { fontSize: 8.5, cellPadding: 3.5, textColor: textDark },
+        margin: { left: 14, right: 14 }
+      });
+
+      const finalY = doc.lastAutoTable.finalY + 8;
+      const boxHeight = 16;
+
+      doc.setFillColor(...primaryGreen);
+      doc.roundedRect(110, finalY, 86, boxHeight, 3, 3, 'F');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text("TOTAL ESTIMADO", 114, finalY + 10);
+      doc.setFontSize(12);
+      doc.text(`$ ${totalCalculated.toLocaleString('es-AR')}`, 190, finalY + 10, { align: 'right' });
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text("• Precios sujetos a modificación según disponibilidad de stock en cultivo.", 14, finalY + boxHeight + 12);
+      doc.text("• Validez de esta cotización: 15 días desde la fecha de emisión.", 14, finalY + boxHeight + 17);
+      doc.text("¡Gracias por elegir Vivero Caladio para verdear tus espacios!", 14, finalY + boxHeight + 22);
+
+      doc.save(`Presupuesto_Vivero_Caladio_${budgetNum}.pdf`);
+    }
+  </script>
 </body>
 </html>
