@@ -154,42 +154,42 @@ function updateMobileFloatingBar() {
         </div>
       </a>
 
-      <!-- Desktop Nav -->
-      <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
-        <a href="#inicio" class="text-brand-100 hover:text-white transition-colors">Inicio</a>
-        <a href="#nosotros" class="text-brand-100 hover:text-white transition-colors">Nosotros</a>
-        <a href="#contacto" class="text-brand-100 hover:text-white transition-colors">Contacto</a>
-      </nav>
+<!-- Nav accesible en móvil y desktop -->
+<nav class="flex items-center space-x-3 sm:space-x-6 text-xs sm:text-sm font-medium">
+  <a href="#inicio" class="text-brand-100 hover:text-white transition-colors">Inicio</a>
+  <a href="#nosotros" class="text-brand-100 hover:text-white transition-colors">Nosotros</a>
+  <a href="#contacto" class="text-brand-100 hover:text-white transition-colors">Contacto</a>
+</nav>
 
       <!-- Actions -->
-      <div class="flex items-center space-x-3">
-        <!-- BOTONES ADMIN (OCULTOS POR DEFECTO) -->
-        <button id="nav-btn-presupuesto" onclick="openPresupuestoAdminModal()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center space-x-2 shadow-lg transition-all">
-          <i data-lucide="calculator" class="w-4 h-4"></i>
-          <span>Crear Presupuesto</span>
-        </button>
+	<div class="flex items-center space-x-1.5 sm:space-x-3">
+  	<!-- BOTONES ADMIN (OCULTOS POR DEFECTO) -->
+  	<button id="nav-btn-presupuesto" onclick="openPresupuestoAdminModal()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white p-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-lg transition-all" title="Crear Presupuesto">
+   	 <i data-lucide="calculator" class="w-4 h-4"></i>
+   	 <span class="hidden sm:inline">Crear Presupuesto</span>
+  	</button>
 
-        <button id="nav-btn-remito" onclick="openRemitoModal()" class="hidden bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center space-x-2 shadow-lg transition-all">
-          <i data-lucide="file-text" class="w-4 h-4"></i>
-          <span>Crear Remito</span>
-        </button>
+	<button id="nav-btn-remito" onclick="openRemitoModal()" class="hidden bg-amber-600 hover:bg-amber-500 text-white p-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-lg transition-all" title="Crear Remito">
+   	 <i data-lucide="file-text" class="w-4 h-4"></i>
+   	 <span class="hidden sm:inline">Crear Remito</span>
+  	</button>
 
-        <button id="nav-btn-plant-list" onclick="openPlantListModal()" class="hidden bg-brand-600 hover:bg-brand-500 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center space-x-2 shadow-lg transition-all">
-          <i data-lucide="list-tree" class="w-4 h-4"></i>
-          <span>Ver lista de plantas</span>
-        </button>
+	<button id="nav-btn-plant-list" onclick="openPlantListModal()" class="hidden bg-brand-600 hover:bg-brand-500 text-white p-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-lg transition-all" title="Ver lista de plantas">
+   	 <i data-lucide="list-tree" class="w-4 h-4"></i>
+   	 <span class="hidden sm:inline">Ver plantas</span>
+  	</button>
 
-        <!-- BOTÓN CATÁLOGO PRINCIPAL -->
-        <button onclick="openCatalogModal()" class="relative group bg-brand-500 hover:bg-brand-400 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-brand-900/50 flex items-center space-x-2 transition-all duration-300 hover:scale-105 active:scale-95">
-          <i data-lucide="book-open" class="w-4 h-4"></i>
-          <span>Ver Catálogo</span>
-          <span id="cart-badge" class="hidden absolute -top-2 -right-2 bg-amber-500 text-slate-900 text-xs font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-brand-950 shadow-md">0</span>
-        </button>
+	<!-- BOTÓN CATÁLOGO PRINCIPAL -->
+  	<button onclick="openCatalogModal()" class="relative group bg-brand-500 hover:bg-brand-400 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-lg shadow-brand-900/50 flex items-center space-x-1.5 transition-all duration-300 hover:scale-105 active:scale-95">
+  	  <i data-lucide="book-open" class="w-4 h-4"></i>
+   	 <span class="hidden xs:inline sm:inline">Catálogo</span>
+   	 <span id="cart-badge" class="hidden absolute -top-2 -right-2 bg-amber-500 text-slate-900 text-xs font-black w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border-2 border-brand-950 shadow-md">0</span>
+  	</button>
 
-        <!-- Admin Login Button -->
-        <button onclick="openAdminModal()" class="p-2.5 text-brand-200 hover:text-white hover:bg-brand-800/50 rounded-xl transition-colors" title="Acceso Administrador">
-          <i data-lucide="user-cog" class="w-5 h-5"></i>
-        </button>
+	<!-- Admin Login Button -->
+ 	 <button onclick="openAdminModal()" class="p-2 sm:p-2.5 text-brand-200 hover:text-white hover:bg-brand-800/50 rounded-xl transition-colors" title="Acceso Administrador">
+  	  <i data-lucide="user-cog" class="w-5 h-5"></i>
+ 	 </button>
       </div>
     </div>
   </header>
