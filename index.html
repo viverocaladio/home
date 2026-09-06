@@ -113,6 +113,13 @@
           <span>Ver lista de plantas</span>
         </button>
 
+        <!-- BOTÓN CATÁLOGO PRINCIPAL -->
+        <button onclick="openCatalogModal()" class="relative group bg-brand-500 hover:bg-brand-400 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-brand-900/50 flex items-center space-x-2 transition-all duration-300 hover:scale-105 active:scale-95">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span>Ver Catálogo</span>
+          <span id="cart-badge" class="hidden absolute -top-2 -right-2 bg-amber-500 text-slate-900 text-xs font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-brand-950 shadow-md">0</span>
+        </button>
+
         <!-- Admin Login Button -->
         <button onclick="openAdminModal()" class="p-2.5 text-brand-200 hover:text-white hover:bg-brand-800/50 rounded-xl transition-colors" title="Acceso Administrador">
           <i data-lucide="user-cog" class="w-5 h-5"></i>
@@ -143,7 +150,7 @@
           <span>Explorar Catálogo y Presupuestar</span>
         </button>
         
-        <a href="https://wa.me/543804883917" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-medium px-8 py-4 rounded-xl text-base border border-white/20 backdrop-blur-md flex items-center justify-center space-x-2 transition-all">
+        <a href="#contacto" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-medium px-8 py-4 rounded-xl text-base border border-white/20 backdrop-blur-md flex items-center justify-center space-x-2 transition-all">
           <i data-lucide="phone-call" class="w-4 h-4"></i>
           <span>Contactar Asesor</span>
         </a>
@@ -354,7 +361,7 @@
               <span id="cart-item-count" class="font-bold text-gray-800">0</span>
             </div>
 
-            <!-- TOTAL PARA PRESUPUESTO CLIENTES -->
+            <!-- TOTAL PARA PRESUPUESTO -->
             <div class="pt-2 border-t border-gray-200 space-y-1">
               <div class="flex justify-between items-baseline pt-2">
                 <span class="text-gray-900 font-bold text-base">Total Estimado:</span>
@@ -706,7 +713,7 @@
 
   <!-- JS APP LOGIC -->
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbypmtpoVLh8PopNNdvKo_Ti2ysHSiMWGuXjT6KeOmEgzUDWA1rzTaxJHa9iuey0saHsxw/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbx3O3lWw_DURBW_dqbwcVe2ejBUFB75ALhfiA4b7X1Fz8XpKDYY7rOLe1WovW55dFAFjw/exec";
     
     let isAdminLoggedIn = false;
 
@@ -882,13 +889,17 @@
     function updateCartUI() {
       const cartList = document.getElementById("cart-list");
       const emptyMsg = document.getElementById("empty-cart-msg");
+      const badge = document.getElementById("cart-badge");
       
       const totalCount = cart.reduce((sum, item) => sum + item.cantidad, 0);
       const totalPrice = cart.reduce((sum, item) => sum + (Number(item.Precio || 0) * item.cantidad), 0);
 
       if (totalCount > 0) {
+        badge.innerText = totalCount;
+        badge.classList.remove("hidden");
         emptyMsg.classList.add("hidden");
       } else {
+        badge.classList.add("hidden");
         emptyMsg.classList.remove("hidden");
       }
 
@@ -1436,38 +1447,58 @@
       alert(`Planta "${newName}" actualizada exitosamente.`);
     }
 
-    function addNewPlant() {
-      const id = document.getElementById("new-plant-id").value.trim();
-      const name = document.getElementById("new-plant-name").value.trim();
-      const cat = document.getElementById("new-plant-cat").value.trim() || "General";
-      const rawPrice = document.getElementById("new-plant-price").value;
-      const price = rawPrice !== "" && !isNaN(parseFloat(rawPrice)) ? parseFloat(rawPrice) : null;
+    async function addNewPlant() {
+  const id = document.getElementById("new-plant-id").value.trim();
+  const name = document.getElementById("new-plant-name").value.trim();
+  const cat = document.getElementById("new-plant-cat").value.trim() || "General";
+  const rawPrice = document.getElementById("new-plant-price").value;
+  const price = rawPrice !== "" && !isNaN(parseFloat(rawPrice)) ? parseFloat(rawPrice) : null;
 
-      if (!id || !name) {
-        alert("Ingresa un ID y nombre válidos para crear la planta.");
-        return;
-      }
+  if (!id || !name) {
+    alert("Ingresa un ID y nombre válidos para crear la planta.");
+    return;
+  }
 
-      plantas.unshift({
-        ID: id,
-        Nombre: name,
-        Categoria: cat,
-        Precio: price,
-        Stock: price !== null ? "Disponible" : "Sin Stock"
+  const newPlant = {
+    ID: id,
+    Nombre: name,
+    Categoria: cat,
+    Precio: price,
+    Stock: price !== null ? "Disponible" : "Sin Stock"
+  };
+
+  // 1. Agregar localmente a la memoria de la app
+  plantas.unshift(newPlant);
+
+  // 2. Limpiar campos del formulario
+  document.getElementById("new-plant-id").value = "";
+  document.getElementById("new-plant-name").value = "";
+  document.getElementById("new-plant-cat").value = "";
+  document.getElementById("new-plant-price").value = "";
+
+  // 3. Actualizar vistas de la aplicación
+  populateCategories();
+  renderPlantsGrid();
+  renderAdminPlantsTable();
+  populateRemitoSelect();
+  populatePresupuestoAdminSelect();
+
+  // 4. Enviar los datos a Google Sheets
+  try {
+    if (API_URL && !API_URL.includes("TU_WEB_APP_URL")) {
+      await fetch(API_URL, {
+        method: "POST",
+        mode: "no-cors", // Requerido para peticiones simples a Google Apps Script
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPlant)
       });
-
-      document.getElementById("new-plant-id").value = "";
-      document.getElementById("new-plant-name").value = "";
-      document.getElementById("new-plant-cat").value = "";
-      document.getElementById("new-plant-price").value = "";
-
-      populateCategories();
-      renderPlantsGrid();
-      renderAdminPlantsTable();
-      populateRemitoSelect();
-      populatePresupuestoAdminSelect();
-      alert(`Planta "${name}" agregada con éxito.`);
     }
+    alert(`Planta "${name}" guardada con éxito y agregada a Google Sheets.`);
+  } catch (err) {
+    console.error("Error al guardar en Google Sheets:", err);
+    alert(`Planta "${name}" agregada localmente, pero ocurrió un error al sincronizar con Google Sheets.`);
+  }
+}
 
     // EXPORTAR REMITO PDF
     function generatePDFRemito() {
@@ -1502,7 +1533,6 @@
       doc.setFontSize(9);
       doc.setTextColor(180, 225, 195);
       doc.text("De José Luis Romero • Producción Propia y Asesoramiento", 14, 27);
-      doc.text("ESTE DOCUMENTO NO ES VALIDO COMO FACTURA", 14, 34);
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
@@ -1766,6 +1796,33 @@
       doc.text("¡Gracias por elegir Vivero Caladio para verdear tus espacios!", 14, finalY + boxHeight + 22);
 
       doc.save(`Presupuesto_Vivero_Caladio_${budgetNum}.pdf`);
+    }
+
+    function submitAdminLogin() {
+      const pass = document.getElementById("admin-pass").value;
+      if (pass === "AdminVivero2026") {
+        isAdminLoggedIn = true;
+        document.getElementById("admin-login-view").classList.add("hidden");
+        document.getElementById("admin-crud-view").classList.remove("hidden");
+        document.getElementById("nav-btn-presupuesto").classList.remove("hidden");
+        document.getElementById("nav-btn-plant-list").classList.remove("hidden");
+        document.getElementById("nav-btn-remito").classList.remove("hidden");
+      } else {
+        alert("Contraseña incorrecta.");
+      }
+    }
+
+    function logoutAdmin() {
+      isAdminLoggedIn = false;
+      document.getElementById("admin-login-view").classList.remove("hidden");
+      document.getElementById("admin-crud-view").classList.add("hidden");
+      document.getElementById("nav-btn-presupuesto").classList.add("hidden");
+      document.getElementById("nav-btn-plant-list").classList.add("hidden");
+      document.getElementById("nav-btn-remito").classList.add("hidden");
+      document.getElementById("admin-pass").value = "";
+      closePlantListModal();
+      closeRemitoModal();
+      closePresupuestoAdminModal();
     }
   </script>
 </body>
