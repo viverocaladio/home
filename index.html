@@ -48,72 +48,68 @@
         }
       }
     }
-// Función para cambiar de pestaña en dispositivos móviles
-	function switchMobileTab(tab) {
-  	const catalogSec = document.getElementById("mobile-catalog-sec");
-  	const cartSec = document.getElementById("mobile-cart-sec");
-  	const tabBtnCatalog = document.getElementById("tab-btn-catalog");
-  	const tabBtnCart = document.getElementById("tab-btn-cart");
-  	const floatingBar = document.getElementById("mobile-floating-bar");
 
-  if (tab === 'catalog') {
-    catalogSec.classList.remove("hidden");
-    cartSec.classList.add("hidden");
-    cartSec.classList.remove("flex");
+    function switchMobileTab(tab) {
+      const catalogSec = document.getElementById("mobile-catalog-sec");
+      const cartSec = document.getElementById("mobile-cart-sec");
+      const tabBtnCatalog = document.getElementById("tab-btn-catalog");
+      const tabBtnCart = document.getElementById("tab-btn-cart");
+      const floatingBar = document.getElementById("mobile-floating-bar");
 
-    tabBtnCatalog.className = "flex-1 py-3 px-2 text-xs font-bold text-center border-b-2 border-brand-400 text-brand-300 flex items-center justify-center space-x-2 transition-all";
-    tabBtnCart.className = "flex-1 py-3 px-2 text-xs font-bold text-center border-b-2 border-transparent text-gray-400 flex items-center justify-center space-x-2 transition-all relative";
+      if (tab === 'catalog') {
+        catalogSec.classList.remove("hidden");
+        cartSec.classList.add("hidden");
+        cartSec.classList.remove("flex");
 
-    // Re-mostrar la barra flotante si hay elementos en el carrito
-    if (cart.length > 0) {
-      floatingBar.classList.remove("hidden");
+        tabBtnCatalog.className = "flex-1 py-3 px-2 text-xs font-bold text-center border-b-2 border-brand-400 text-brand-300 flex items-center justify-center space-x-2 transition-all";
+        tabBtnCart.className = "flex-1 py-3 px-2 text-xs font-bold text-center border-b-2 border-transparent text-gray-400 flex items-center justify-center space-x-2 transition-all relative";
+
+        if (cart.length > 0) {
+          floatingBar.classList.remove("hidden");
+        }
+      } else if (tab === 'cart') {
+        catalogSec.classList.add("hidden");
+        cartSec.classList.remove("hidden");
+        cartSec.classList.add("flex");
+
+        tabBtnCart.className = "flex-1 py-3 px-2 text-xs font-bold text-center border-b-2 border-brand-400 text-brand-300 flex items-center justify-center space-x-2 transition-all relative";
+        tabBtnCatalog.className = "flex-1 py-3 px-2 text-xs font-bold text-center border-b-2 border-transparent text-gray-400 flex items-center justify-center space-x-2 transition-all";
+
+        floatingBar.classList.add("hidden");
+      }
+      
+      if (window.lucide) {
+        lucide.createIcons();
+      }
     }
-  } else if (tab === 'cart') {
-    catalogSec.classList.add("hidden");
-    cartSec.classList.remove("hidden");
-    cartSec.classList.add("flex");
 
-    tabBtnCart.className = "flex-1 py-3 px-2 text-xs font-bold text-center border-b-2 border-brand-400 text-brand-300 flex items-center justify-center space-x-2 transition-all relative";
-    tabBtnCatalog.className = "flex-1 py-3 px-2 text-xs font-bold text-center border-b-2 border-transparent text-gray-400 flex items-center justify-center space-x-2 transition-all";
+    function updateMobileFloatingBar() {
+      const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    // Ocultar la barra flotante en la pestaña de carrito
-    floatingBar.classList.add("hidden");
-  }
-  
-  if (window.lucide) {
-    lucide.createIcons();
-  }
-}
+      const badge = document.getElementById("mobile-tab-badge");
+      const floatingBar = document.getElementById("mobile-floating-bar");
+      const floatingQty = document.getElementById("mobile-floating-qty");
+      const floatingTotal = document.getElementById("mobile-floating-total");
 
-// Actualización necesaria en tu función renderCart() existente para actualizar la barra flotante móvil
-function updateMobileFloatingBar() {
-  const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      if (badge) {
+        badge.innerText = totalQty;
+        if (totalQty > 0) badge.classList.remove("hidden");
+        else badge.classList.add("hidden");
+      }
 
-  const badge = document.getElementById("mobile-tab-badge");
-  const floatingBar = document.getElementById("mobile-floating-bar");
-  const floatingQty = document.getElementById("mobile-floating-qty");
-  const floatingTotal = document.getElementById("mobile-floating-total");
+      if (floatingQty) floatingQty.innerText = totalQty;
+      if (floatingTotal) floatingTotal.innerText = `$${totalPrice.toLocaleString('es-AR')}`;
 
-  if (badge) {
-    badge.innerText = totalQty;
-    if (totalQty > 0) badge.classList.remove("hidden");
-    else badge.classList.add("hidden");
-  }
-
-  if (floatingQty) floatingQty.innerText = totalQty;
-  if (floatingTotal) floatingTotal.innerText = `$${totalPrice.toLocaleString('es-AR')}`;
-
-  // Mostrar la barra flotante en móvil si hay items y estamos en la pestaña del catálogo
-  const catalogSec = document.getElementById("mobile-catalog-sec");
-  if (floatingBar && catalogSec && !catalogSec.classList.contains("hidden")) {
-    if (totalQty > 0) {
-      floatingBar.classList.remove("hidden");
-    } else {
-      floatingBar.classList.add("hidden");
+      const catalogSec = document.getElementById("mobile-catalog-sec");
+      if (floatingBar && catalogSec && !catalogSec.classList.contains("hidden")) {
+        if (totalQty > 0) {
+          floatingBar.classList.remove("hidden");
+        } else {
+          floatingBar.classList.add("hidden");
+        }
+      }
     }
-  }
-}
   </script>
   <style>
     .glass-nav {
@@ -154,42 +150,37 @@ function updateMobileFloatingBar() {
         </div>
       </a>
 
-<!-- Nav accesible en móvil y desktop -->
-<nav class="flex items-center space-x-3 sm:space-x-6 text-xs sm:text-sm font-medium">
-  <a href="#inicio" class="text-brand-100 hover:text-white transition-colors">Inicio</a>
-  <a href="#nosotros" class="text-brand-100 hover:text-white transition-colors">Nosotros</a>
-  <a href="#contacto" class="text-brand-100 hover:text-white transition-colors">Contacto</a>
-</nav>
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <a href="#inicio" onclick="scrollToSection(event, 'inicio')" class="text-brand-100 hover:text-white transition-colors">Inicio</a>
+        <a href="#nosotros" onclick="scrollToSection(event, 'nosotros')" class="text-brand-100 hover:text-white transition-colors">Nosotros</a>
+        <a href="#contacto" onclick="scrollToSection(event, 'contacto')" class="text-brand-100 hover:text-white transition-colors">Contacto</a>
+      </nav>
 
-      <!-- Actions -->
-	<div class="flex items-center space-x-1.5 sm:space-x-3">
-  	<!-- BOTONES ADMIN (OCULTOS POR DEFECTO) -->
-  	<button id="nav-btn-presupuesto" onclick="openPresupuestoAdminModal()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white p-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-lg transition-all" title="Crear Presupuesto">
-   	 <i data-lucide="calculator" class="w-4 h-4"></i>
-   	 <span class="hidden sm:inline">Crear Presupuesto</span>
-  	</button>
+      <div class="flex items-center space-x-1.5 sm:space-x-3">
+        <button id="nav-btn-presupuesto" onclick="openPresupuestoAdminModal()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white p-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-lg transition-all" title="Crear Presupuesto">
+          <i data-lucide="calculator" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Crear Presupuesto</span>
+        </button>
 
-	<button id="nav-btn-remito" onclick="openRemitoModal()" class="hidden bg-amber-600 hover:bg-amber-500 text-white p-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-lg transition-all" title="Crear Remito">
-   	 <i data-lucide="file-text" class="w-4 h-4"></i>
-   	 <span class="hidden sm:inline">Crear Remito</span>
-  	</button>
+        <button id="nav-btn-remito" onclick="openRemitoModal()" class="hidden bg-amber-600 hover:bg-amber-500 text-white p-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-lg transition-all" title="Crear Remito">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Crear Remito</span>
+        </button>
 
-	<button id="nav-btn-plant-list" onclick="openPlantListModal()" class="hidden bg-brand-600 hover:bg-brand-500 text-white p-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-lg transition-all" title="Ver lista de plantas">
-   	 <i data-lucide="list-tree" class="w-4 h-4"></i>
-   	 <span class="hidden sm:inline">Ver plantas</span>
-  	</button>
+        <button id="nav-btn-plant-list" onclick="openPlantListModal()" class="hidden bg-brand-600 hover:bg-brand-500 text-white p-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-lg transition-all" title="Ver lista de plantas">
+          <i data-lucide="list-tree" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Ver plantas</span>
+        </button>
 
-	<!-- BOTÓN CATÁLOGO PRINCIPAL -->
-  	<button onclick="openCatalogModal()" class="relative group bg-brand-500 hover:bg-brand-400 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-lg shadow-brand-900/50 flex items-center space-x-1.5 transition-all duration-300 hover:scale-105 active:scale-95">
-  	  <i data-lucide="book-open" class="w-4 h-4"></i>
-   	 <span class="hidden xs:inline sm:inline">Catálogo</span>
-   	 <span id="cart-badge" class="hidden absolute -top-2 -right-2 bg-amber-500 text-slate-900 text-xs font-black w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border-2 border-brand-950 shadow-md">0</span>
-  	</button>
+        <button onclick="openCatalogModal()" class="relative group bg-brand-500 hover:bg-brand-400 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-lg shadow-brand-900/50 flex items-center space-x-1.5 transition-all duration-300 hover:scale-105 active:scale-95">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span class="hidden xs:inline sm:inline">Catálogo</span>
+          <span id="cart-badge" class="hidden absolute -top-2 -right-2 bg-amber-500 text-slate-900 text-xs font-black w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border-2 border-brand-950 shadow-md">0</span>
+        </button>
 
-	<!-- Admin Login Button -->
- 	 <button onclick="openAdminModal()" class="p-2 sm:p-2.5 text-brand-200 hover:text-white hover:bg-brand-800/50 rounded-xl transition-colors" title="Acceso Administrador">
-  	  <i data-lucide="user-cog" class="w-5 h-5"></i>
- 	 </button>
+        <button onclick="openAdminModal()" class="p-2 sm:p-2.5 text-brand-200 hover:text-white hover:bg-brand-800/50 rounded-xl transition-colors" title="Acceso Administrador">
+          <i data-lucide="user-cog" class="w-5 h-5"></i>
+        </button>
       </div>
     </div>
   </header>
@@ -216,10 +207,10 @@ function updateMobileFloatingBar() {
           <span>Explorar Catálogo y Presupuestar</span>
         </button>
         
-	<a href="https://wa.me/543804883917?text=Hola,%20quisiera%20recibir%20asesoramiento%20sobre%20las%20plantas%20del%20vivero." target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-medium px-8 py-4 rounded-xl text-base border border-white/20 backdrop-blur-md flex items-center justify-center space-x-2 transition-all">
-  	<i data-lucide="phone-call" class="w-4 h-4"></i>
-  	<span>Contactar Asesor</span>
-	</a>
+        <a href="https://wa.me/543804883917?text=Hola,%20quisiera%20recibir%20asesoramiento%20sobre%20las%20plantas%20del%20vivero." target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-medium px-8 py-4 rounded-xl text-base border border-white/20 backdrop-blur-md flex items-center justify-center space-x-2 transition-all">
+          <i data-lucide="phone-call" class="w-4 h-4"></i>
+          <span>Contactar Asesor</span>
+        </a>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-10 border-t border-white/10 text-white">
@@ -301,16 +292,6 @@ function updateMobileFloatingBar() {
     </div>
   </section>
 
-  <!-- BANNER CTA -->
-  <section class="py-16 bg-brand-900 text-white relative overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8">
-      <div>
-        <h2 class="font-serif text-3xl font-bold mb-2">¿Buscas especies específicas para tu proyecto?</h2>
-        <p class="text-brand-200 text-sm">Explora el catálogo completo con precios actualizados e imágenes descriptivas.</p>
-      </div>
-    </div>
-  </section>
-
   <!-- FOOTER -->
   <footer id="contacto" class="bg-brand-950 text-brand-300 py-12 border-t border-brand-900 mt-auto">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
@@ -347,124 +328,122 @@ function updateMobileFloatingBar() {
 
   <!-- MODAL / VISTA COMPLETA DEL CATÁLOGO & PRESUPUESTO CLIENTES -->
   <div id="catalog-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-0 sm:p-4 md:p-6">
-  <div class="bg-white w-full max-w-7xl h-full sm:h-[94vh] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 sm:border border-brand-200 relative">
-    
-    <div class="bg-brand-900 text-white p-3.5 sm:p-5 flex items-center justify-between border-b border-brand-800 shrink-0">
-      <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-600 flex items-center justify-center">
-          <i data-lucide="book-open" class="w-5 h-5 text-white"></i>
-        </div>
-        <div>
-          <h2 class="font-serif text-base sm:text-xl font-bold leading-tight">Catálogo & Presupuestador</h2>
-          <p class="text-[11px] sm:text-xs text-brand-300 hidden sm:block">Selecciona tus plantas y genera la cotización oficial en PDF</p>
-        </div>
-      </div>
-
-      <button onclick="closeCatalogModal()" class="w-9 h-9 rounded-xl bg-brand-800/80 hover:bg-brand-700 flex items-center justify-center text-brand-200 hover:text-white transition-colors">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-    </div>
-
-    <div class="flex lg:hidden bg-brand-950 text-white border-b border-brand-800 shrink-0">
-      <button id="tab-btn-catalog" onclick="switchMobileTab('catalog')" class="flex-1 py-3 px-2 text-xs font-bold text-center border-b-2 border-brand-400 text-brand-300 flex items-center justify-center space-x-2 transition-all">
-        <i data-lucide="grid" class="w-4 h-4"></i>
-        <span>1. Catálogo</span>
-      </button>
-      <button id="tab-btn-cart" onclick="switchMobileTab('cart')" class="flex-1 py-3 px-2 text-xs font-bold text-center border-b-2 border-transparent text-gray-400 flex items-center justify-center space-x-2 transition-all relative">
-        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
-        <span>2. Mi Presupuesto</span>
-        <span id="mobile-tab-badge" class="ml-1.5 bg-amber-500 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded-full hidden">0</span>
-      </button>
-    </div>
-
-    <div class="flex-1 flex flex-col lg:grid lg:grid-cols-12 overflow-hidden bg-brand-50/50 relative">
+    <div class="bg-white w-full max-w-7xl h-full sm:h-[94vh] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 sm:border border-brand-200 relative">
       
-      <div id="mobile-catalog-sec" class="lg:col-span-8 flex flex-col h-full overflow-hidden border-r border-gray-200 w-full">
-        <div class="p-3 sm:p-4 bg-white border-b border-gray-200 space-y-2 shrink-0">
-          <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <div class="relative flex-1">
-              <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-              <input type="text" id="search-input" oninput="filterPlants()" placeholder="Buscar por nombre o especie..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-            </div>
-            <select id="category-select" onchange="filterPlants()" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs sm:text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
-              <option value="TODAS">Todas las Categorías</option>
-            </select>
+      <div class="bg-brand-900 text-white p-3.5 sm:p-5 flex items-center justify-between border-b border-brand-800 shrink-0">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-600 flex items-center justify-center">
+            <i data-lucide="book-open" class="w-5 h-5 text-white"></i>
+          </div>
+          <div>
+            <h2 class="font-serif text-base sm:text-xl font-bold leading-tight">Catálogo & Presupuestador</h2>
+            <p class="text-[11px] sm:text-xs text-brand-300 hidden sm:block">Selecciona tus plantas y genera la cotización oficial en PDF</p>
           </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-3 sm:p-6 pb-24 lg:pb-6">
-          <div id="plants-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-            </div>
-          
-          <div id="no-results" class="hidden text-center py-16">
-            <i data-lucide="frown" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
-            <p class="text-gray-500 text-sm">No se encontraron plantas con los filtros seleccionados.</p>
-          </div>
-        </div>
+        <button onclick="closeCatalogModal()" class="w-9 h-9 rounded-xl bg-brand-800/80 hover:bg-brand-700 flex items-center justify-center text-brand-200 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
 
-      <div id="mobile-cart-sec" class="hidden lg:flex lg:col-span-4 bg-white flex-col h-full overflow-hidden border-t lg:border-t-0 w-full">
-        <div class="p-3 sm:p-4 bg-brand-50 border-b border-brand-100 flex items-center justify-between shrink-0">
-          <div class="flex items-center space-x-2 text-brand-900 font-bold text-xs sm:text-sm">
-            <i data-lucide="calculator" class="w-4 h-4 text-brand-600"></i>
-            <span>Resumen del Presupuesto</span>
-          </div>
-          <button onclick="clearCart()" class="text-xs text-red-600 hover:text-red-800 font-medium transition-colors">Vaciar</button>
-        </div>
+      <div class="flex lg:hidden bg-brand-950 text-white border-b border-brand-800 shrink-0">
+        <button id="tab-btn-catalog" onclick="switchMobileTab('catalog')" class="flex-1 py-3 px-2 text-xs font-bold text-center border-b-2 border-brand-400 text-brand-300 flex items-center justify-center space-x-2 transition-all">
+          <i data-lucide="grid" class="w-4 h-4"></i>
+          <span>1. Catálogo</span>
+        </button>
+        <button id="tab-btn-cart" onclick="switchMobileTab('cart')" class="flex-1 py-3 px-2 text-xs font-bold text-center border-b-2 border-transparent text-gray-400 flex items-center justify-center space-x-2 transition-all relative">
+          <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+          <span>2. Mi Presupuesto</span>
+          <span id="mobile-tab-badge" class="ml-1.5 bg-amber-500 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded-full hidden">0</span>
+        </button>
+      </div>
 
-        <div class="p-3 sm:p-4 border-b border-gray-100 bg-white space-y-2 shrink-0">
-          <label class="text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider block">Datos del Cliente (Opcional)</label>
-          <input type="text" id="client-name" placeholder="Nombre completo / Empresa" class="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500">
-          <input type="text" id="client-phone" placeholder="Teléfono de contacto" class="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500">
-        </div>
-
-        <div class="flex-1 overflow-y-auto p-3 sm:p-4">
-          <ul id="cart-list" class="space-y-2.5">
-            </ul>
-          <div id="empty-cart-msg" class="text-center py-12 text-gray-400">
-            <i data-lucide="shopping-cart" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
-            <p class="text-xs">El presupuesto está vacío.<br>Agrega especies desde el catálogo.</p>
-          </div>
-        </div>
-
-        <div class="p-3 sm:p-4 bg-gray-50 border-t border-gray-200 space-y-3 shrink-0">
-          <div class="flex justify-between items-center text-xs sm:text-sm">
-            <span class="text-gray-500 font-medium">Variedades seleccionadas:</span>
-            <span id="cart-item-count" class="font-bold text-gray-800">0</span>
-          </div>
-
-          <div class="pt-2 border-t border-gray-200 space-y-1">
-            <div class="flex justify-between items-baseline pt-1">
-              <span class="text-gray-900 font-bold text-sm sm:text-base">Total Estimado:</span>
-              <span id="cart-total-price" class="text-xl sm:text-2xl font-black text-brand-700">$0</span>
+      <div class="flex-1 flex flex-col lg:grid lg:grid-cols-12 overflow-hidden bg-brand-50/50 relative">
+        
+        <div id="mobile-catalog-sec" class="lg:col-span-8 flex flex-col h-full overflow-hidden border-r border-gray-200 w-full">
+          <div class="p-3 sm:p-4 bg-white border-b border-gray-200 space-y-2 shrink-0">
+            <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <div class="relative flex-1">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="search-input" oninput="filterPlants()" placeholder="Buscar por nombre o especie..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+              </div>
+              <select id="category-select" onchange="filterPlants()" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs sm:text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="TODAS">Todas las Categorías</option>
+              </select>
             </div>
           </div>
 
-          <button onclick="generatePDFBudget()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-600/30 flex items-center justify-center space-x-2 transition-all active:scale-[0.98]">
-            <i data-lucide="file-down" class="w-5 h-5"></i>
-            <span class="text-xs sm:text-sm">Descargar Presupuesto PDF</span>
-          </button>
+          <div class="flex-1 overflow-y-auto p-3 sm:p-6 pb-24 lg:pb-6">
+            <div id="plants-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4"></div>
+            
+            <div id="no-results" class="hidden text-center py-16">
+              <i data-lucide="frown" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+              <p class="text-gray-500 text-sm">No se encontraron plantas con los filtros seleccionados.</p>
+            </div>
+          </div>
         </div>
+
+        <div id="mobile-cart-sec" class="hidden lg:flex lg:col-span-4 bg-white flex-col h-full overflow-hidden border-t lg:border-t-0 w-full">
+          <div class="p-3 sm:p-4 bg-brand-50 border-b border-brand-100 flex items-center justify-between shrink-0">
+            <div class="flex items-center space-x-2 text-brand-900 font-bold text-xs sm:text-sm">
+              <i data-lucide="calculator" class="w-4 h-4 text-brand-600"></i>
+              <span>Resumen del Presupuesto</span>
+            </div>
+            <button onclick="clearCart()" class="text-xs text-red-600 hover:text-red-800 font-medium transition-colors">Vaciar</button>
+          </div>
+
+          <div class="p-3 sm:p-4 border-b border-gray-100 bg-white space-y-2 shrink-0">
+            <label class="text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider block">Datos del Cliente (Opcional)</label>
+            <input type="text" id="client-name" placeholder="Nombre completo / Empresa" class="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500">
+            <input type="text" id="client-phone" placeholder="Teléfono de contacto" class="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500">
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-3 sm:p-4">
+            <ul id="cart-list" class="space-y-2.5"></ul>
+            <div id="empty-cart-msg" class="text-center py-12 text-gray-400">
+              <i data-lucide="shopping-cart" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+              <p class="text-xs">El presupuesto está vacío.<br>Agrega especies desde el catálogo.</p>
+            </div>
+          </div>
+
+          <div class="p-3 sm:p-4 bg-gray-50 border-t border-gray-200 space-y-3 shrink-0">
+            <div class="flex justify-between items-center text-xs sm:text-sm">
+              <span class="text-gray-500 font-medium">Variedades seleccionadas:</span>
+              <span id="cart-item-count" class="font-bold text-gray-800">0</span>
+            </div>
+
+            <div class="pt-2 border-t border-gray-200 space-y-1">
+              <div class="flex justify-between items-baseline pt-1">
+                <span class="text-gray-900 font-bold text-sm sm:text-base">Total Estimado:</span>
+                <span id="cart-total-price" class="text-xl sm:text-2xl font-black text-brand-700">$0</span>
+              </div>
+            </div>
+
+            <button onclick="generatePDFBudget()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-600/30 flex items-center justify-center space-x-2 transition-all active:scale-[0.98]">
+              <i data-lucide="file-down" class="w-5 h-5"></i>
+              <span class="text-xs sm:text-sm">Descargar Presupuesto PDF</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="mobile-floating-bar" class="lg:hidden hidden absolute bottom-3 left-3 right-3 bg-brand-900 text-white p-3 rounded-2xl shadow-2xl border border-brand-700 flex items-center justify-between z-10 transition-all">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center" id="mobile-floating-qty">0</div>
+          <div>
+            <p class="text-[10px] text-brand-300 uppercase tracking-wider font-semibold">Total estimado</p>
+            <p class="text-sm font-bold text-white" id="mobile-floating-total">$0</p>
+          </div>
+        </div>
+        <button onclick="switchMobileTab('cart')" class="bg-brand-500 hover:bg-brand-400 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md">
+          <span>Ver Detalle</span>
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
       </div>
 
     </div>
-
-    <div id="mobile-floating-bar" class="lg:hidden hidden absolute bottom-3 left-3 right-3 bg-brand-900 text-white p-3 rounded-2xl shadow-2xl border border-brand-700 flex items-center justify-between z-10 transition-all">
-      <div class="flex items-center space-x-3">
-        <div class="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center" id="mobile-floating-qty">0</div>
-        <div>
-          <p class="text-[10px] text-brand-300 uppercase tracking-wider font-semibold">Total estimado</p>
-          <p class="text-sm font-bold text-white" id="mobile-floating-total">$0</p>
-        </div>
-      </div>
-      <button onclick="switchMobileTab('cart')" class="bg-brand-500 hover:bg-brand-400 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-md">
-        <span>Ver Detalle</span>
-        <i data-lucide="chevron-right" class="w-4 h-4"></i>
-      </button>
-    </div>
-
   </div>
-</div>
 
   <!-- ADMIN LOGIN / CRUD MODAL -->
   <div id="admin-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
@@ -494,19 +473,16 @@ function updateMobileFloatingBar() {
         </div>
         
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <!-- BOTÓN CREAR PRESUPUESTO -->
           <button onclick="closeAdminModal(); openPresupuestoAdminModal();" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs shadow-md flex items-center justify-center space-x-1 transition-all">
             <i data-lucide="calculator" class="w-4 h-4"></i>
             <span>Crear Presupuesto</span>
           </button>
 
-          <!-- BOTÓN CREAR REMITO -->
           <button onclick="closeAdminModal(); openRemitoModal();" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl text-xs shadow-md flex items-center justify-center space-x-1 transition-all">
             <i data-lucide="file-text" class="w-4 h-4"></i>
             <span>Crear Remito</span>
           </button>
 
-          <!-- BOTÓN VER LISTA DE PLANTAS -->
           <button onclick="closeAdminModal(); openPlantListModal();" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl text-xs shadow-md flex items-center justify-center space-x-1 transition-all">
             <i data-lucide="list-tree" class="w-4 h-4"></i>
             <span>Ver lista plantas</span>
@@ -520,7 +496,7 @@ function updateMobileFloatingBar() {
     </div>
   </div>
 
-  <!-- MODAL CREACIÓN DE PRESUPUESTO ADMIN (IDÉNTICO AL REMITO) -->
+  <!-- MODAL CREACIÓN DE PRESUPUESTO ADMIN -->
   <div id="presupuesto-admin-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-3 sm:p-6">
     <div class="bg-white w-full max-w-4xl h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
       
@@ -557,9 +533,7 @@ function updateMobileFloatingBar() {
             <span>Agregar Especie al Presupuesto</span>
           </h4>
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-            <select id="presupuesto-admin-plant-select" class="sm:col-span-7 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
-              <!-- Dynamically populated -->
-            </select>
+            <select id="presupuesto-admin-plant-select" class="sm:col-span-7 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none"></select>
             <input type="number" id="presupuesto-admin-plant-qty" min="1" value="1" placeholder="Cant." class="sm:col-span-2 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
             <button id="presupuesto-admin-add-btn" onclick="addPlantToPresupuestoAdmin()" class="sm:col-span-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow transition-all flex items-center justify-center space-x-1">
               <i data-lucide="plus" class="w-4 h-4"></i>
@@ -585,9 +559,7 @@ function updateMobileFloatingBar() {
                   <th class="p-3 text-center">Acción</th>
                 </tr>
               </thead>
-              <tbody id="presupuesto-admin-items-tbody" class="divide-y divide-gray-100">
-                <!-- Dynamically populated -->
-              </tbody>
+              <tbody id="presupuesto-admin-items-tbody" class="divide-y divide-gray-100"></tbody>
             </table>
           </div>
 
@@ -598,7 +570,6 @@ function updateMobileFloatingBar() {
 
       </div>
 
-      <!-- Footer Presupuesto Admin Actions (SUBTOTAL, IVA Y TOTAL) -->
       <div class="p-4 bg-gray-100 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex flex-col space-y-1">
           <div class="text-xs text-gray-600">
@@ -663,9 +634,7 @@ function updateMobileFloatingBar() {
             <span>Agregar Especie al Remito</span>
           </h4>
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-            <select id="remito-plant-select" class="sm:col-span-7 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-amber-500 outline-none">
-              <!-- Dynamically populated -->
-            </select>
+            <select id="remito-plant-select" class="sm:col-span-7 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-amber-500 outline-none"></select>
             <input type="number" id="remito-plant-qty" min="1" value="1" placeholder="Cant." class="sm:col-span-2 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-amber-500 outline-none">
             <button id="remito-add-btn" onclick="addPlantToRemito()" class="sm:col-span-3 bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow transition-all flex items-center justify-center space-x-1">
               <i data-lucide="plus" class="w-4 h-4"></i>
@@ -691,9 +660,7 @@ function updateMobileFloatingBar() {
                   <th class="p-3 text-center">Acción</th>
                 </tr>
               </thead>
-              <tbody id="remito-items-tbody" class="divide-y divide-gray-100">
-                <!-- Dynamically populated -->
-              </tbody>
+              <tbody id="remito-items-tbody" class="divide-y divide-gray-100"></tbody>
             </table>
           </div>
 
@@ -704,7 +671,6 @@ function updateMobileFloatingBar() {
 
       </div>
 
-      <!-- Footer Remito Actions (CON SUBTOTAL, IVA Y TOTAL) -->
       <div class="p-4 bg-gray-100 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex flex-col space-y-1">
           <div class="text-xs text-gray-600">
@@ -742,7 +708,7 @@ function updateMobileFloatingBar() {
           </div>
           <div>
             <h3 class="font-serif text-lg font-bold">Gestión de Inventario de Plantas</h3>
-            <p class="text-xs text-brand-300">Modifica precios, nombres y añade nuevas especies</p>
+            <p class="text-xs text-brand-300">Modifica precios, nombres, imágenes, añade o elimina especies</p>
           </div>
         </div>
         <button onclick="closePlantListModal()" class="w-9 h-9 rounded-lg bg-brand-800 hover:bg-brand-700 flex items-center justify-center text-brand-200 hover:text-white">
@@ -756,10 +722,11 @@ function updateMobileFloatingBar() {
             <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i>
             <span>Agregar Nueva Planta</span>
           </h4>
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
             <input type="text" id="new-plant-id" placeholder="ID (ej: PLN-009)" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
             <input type="text" id="new-plant-name" placeholder="Nombre de la planta" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
             <input type="text" id="new-plant-cat" placeholder="Categoría" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+            <input type="text" id="new-plant-img" placeholder="URL Imagen (Opcional)" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
             <input type="number" id="new-plant-price" placeholder="Precio ($)" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
           </div>
           <button onclick="addNewPlant()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-lg text-xs shadow transition-all flex items-center justify-center space-x-2">
@@ -781,13 +748,12 @@ function updateMobileFloatingBar() {
                   <th class="p-3">ID</th>
                   <th class="p-3">Nombre</th>
                   <th class="p-3">Categoría</th>
+                  <th class="p-3">Imagen URL</th>
                   <th class="p-3">Precio ($)</th>
-                  <th class="p-3 text-center">Acción</th>
+                  <th class="p-3 text-center">Acciones</th>
                 </tr>
               </thead>
-              <tbody id="admin-plants-tbody" class="divide-y divide-gray-100">
-                <!-- Dynamically populated -->
-              </tbody>
+              <tbody id="admin-plants-tbody" class="divide-y divide-gray-100"></tbody>
             </table>
           </div>
         </div>
@@ -796,21 +762,34 @@ function updateMobileFloatingBar() {
     </div>
   </div>
 
+  <!-- NOTIFICACIÓN / POP-UP FLOTANTE DE ADICIÓN -->
+  <div id="toast-notification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-brand-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-brand-700 flex items-center space-x-3">
+      <div class="w-8 h-8 rounded-xl bg-brand-500 flex items-center justify-center text-white shrink-0">
+        <i data-lucide="check" class="w-4 h-4"></i>
+      </div>
+      <div>
+        <p class="text-xs font-bold" id="toast-title">¡Planta agregada!</p>
+        <p class="text-[11px] text-brand-200" id="toast-desc">Se añadió al presupuesto correctamente.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- JS APP LOGIC -->
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbx3O3lWw_DURBW_dqbwcVe2ejBUFB75ALhfiA4b7X1Fz8XpKDYY7rOLe1WovW55dFAFjw/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwoE0C1YDEY5CFQWVFGKkfUtv_e9OWGGYI6MTXP7soKOilpxbUBKeQkwSXesbywj63HSg/exec";
     
     let isAdminLoggedIn = false;
 
     let plantas = [
-      { ID: "PLN-001", Nombre: "Algarrobo Blanco", Categoria: "Árboles y Forestales", Precio: 15000, Stock: "Disponible" },
-      { ID: "PLN-002", Nombre: "Jacarandá 10L", Categoria: "Árboles y Forestales", Precio: 21000, Stock: "Disponible" },
-      { ID: "PLN-003", Nombre: "Jazmín del País", Categoria: "Trepadoras y Enredaderas", Precio: 10000, Stock: "Disponible" },
-      { ID: "PLN-004", Nombre: "Limonero Sutil", Categoria: "Frutales y Cítricos", Precio: 25000, Stock: "Disponible" },
-      { ID: "PLN-005", Nombre: "Palmera Pindó", Categoria: "Palmeras y Cycas", Precio: null, Stock: "Sin Stock" },
-      { ID: "PLN-006", Nombre: "Monstera Deliciosa", Categoria: "Plantas de Interior y Tropicales", Precio: 20000, Stock: "Disponible" },
-      { ID: "PLN-007", Nombre: "Lavanda Grande", Categoria: "Aromáticas y Medicinales", Precio: 7500, Stock: "Disponible" },
-      { ID: "PLN-008", Nombre: "Maceta Ciotola N40", Categoria: "Macetas y Accesorios", Precio: 13050, Stock: "Disponible" }
+      { ID: "PLN-001", Nombre: "Algarrobo Blanco", Categoria: "Árboles y Forestales", Imagen: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600&auto=format&fit=crop", Precio: 15000, Stock: "Disponible" },
+      { ID: "PLN-002", Nombre: "Jacarandá 10L", Categoria: "Árboles y Forestales", Imagen: "https://images.unsplash.com/photo-1599598425230-87a1236d9345?q=80&w=600&auto=format&fit=crop", Precio: 21000, Stock: "Disponible" },
+      { ID: "PLN-003", Nombre: "Jazmín del País", Categoria: "Trepadoras y Enredaderas", Imagen: "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=600&auto=format&fit=crop", Precio: 10000, Stock: "Disponible" },
+      { ID: "PLN-004", Nombre: "Limonero Sutil", Categoria: "Frutales y Cítricos", Imagen: "https://images.unsplash.com/photo-1592417817098-8f3d691a4bf5?q=80&w=600&auto=format&fit=crop", Precio: 25000, Stock: "Disponible" },
+      { ID: "PLN-005", Nombre: "Palmera Pindó", Categoria: "Palmeras y Cycas", Imagen: "https://images.unsplash.com/photo-1512428559087-560fa5ceab42?q=80&w=600&auto=format&fit=crop", Precio: null, Stock: "Sin Stock" },
+      { ID: "PLN-006", Nombre: "Monstera Deliciosa", Categoria: "Plantas de Interior y Tropicales", Imagen: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=600&auto=format&fit=crop", Precio: 20000, Stock: "Disponible" },
+      { ID: "PLN-007", Nombre: "Lavanda Grande", Categoria: "Aromáticas y Medicinales", Imagen: "https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?q=80&w=600&auto=format&fit=crop", Precio: 7500, Stock: "Disponible" },
+      { ID: "PLN-008", Nombre: "Maceta Ciotola N40", Categoria: "Macetas y Accesorios", Imagen: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=600&auto=format&fit=crop", Precio: 13050, Stock: "Disponible" }
     ];
 
     let cart = [];
@@ -823,7 +802,91 @@ function updateMobileFloatingBar() {
       lucide.createIcons();
       fetchPlants();
       updateCarousel();
+
+      const savedToken = sessionStorage.getItem("adminToken");
+      if (savedToken) {
+        updateAdminUI(true);
+      } else {
+        updateAdminUI(false);
+      }
     });
+
+    function updateAdminUI(loggedIn) {
+      isAdminLoggedIn = loggedIn;
+      const loginView = document.getElementById("admin-login-view");
+      const crudView = document.getElementById("admin-crud-view");
+      const btnPresupuesto = document.getElementById("nav-btn-presupuesto");
+      const btnRemito = document.getElementById("nav-btn-remito");
+      const btnPlantList = document.getElementById("nav-btn-plant-list");
+
+      if (loggedIn) {
+        if (loginView) loginView.classList.add("hidden");
+        if (crudView) crudView.classList.remove("hidden");
+        if (btnPresupuesto) btnPresupuesto.classList.remove("hidden");
+        if (btnRemito) btnRemito.classList.remove("hidden");
+        if (btnPlantList) btnPlantList.classList.remove("hidden");
+      } else {
+        if (loginView) loginView.classList.remove("hidden");
+        if (crudView) crudView.classList.add("hidden");
+        if (btnPresupuesto) btnPresupuesto.classList.add("hidden");
+        if (btnRemito) btnRemito.classList.add("hidden");
+        if (btnPlantList) btnPlantList.classList.add("hidden");
+      }
+    }
+
+    async function submitAdminLogin() {
+      const passInput = document.getElementById("admin-pass");
+      const pass = passInput ? passInput.value : "";
+      
+      if (!pass) {
+        alert("Por favor ingresa la contraseña.");
+        return;
+      }
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "login", password: pass })
+        });
+        
+        const resData = await response.json();
+        
+        if (resData.result === "success") {
+          sessionStorage.setItem("adminToken", resData.token);
+          updateAdminUI(true);
+          if (passInput) passInput.value = "";
+          alert("¡Sesión iniciada correctamente!");
+          closeAdminModal();
+        } else {
+          alert("Contraseña incorrecta: " + (resData.message || ""));
+        }
+      } catch (err) {
+        console.error("Error en el login:", err);
+        alert("Ocurrió un error al conectar con el servidor.");
+      }
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem("adminToken");
+      updateAdminUI(false);
+      alert("Sesión cerrada.");
+      closeAdminModal();
+    }
+
+    function showNotification(plantName) {
+      const toast = document.getElementById("toast-notification");
+      const desc = document.getElementById("toast-desc");
+      if (desc) desc.innerText = `Se añadió "${plantName}" al presupuesto.`;
+      
+      toast.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
+      toast.classList.add("translate-y-0", "opacity-100");
+
+      setTimeout(() => {
+        toast.classList.remove("translate-y-0", "opacity-100");
+        toast.classList.add("translate-y-20", "opacity-0", "pointer-events-none");
+      }, 3000);
+    }
 
     function updateCarousel() {
       const slides = document.getElementById("carousel-slides");
@@ -887,37 +950,41 @@ function updateMobileFloatingBar() {
       const grid = document.getElementById("plants-grid");
       const noResults = document.getElementById("no-results");
 
-      if (itemsToRender.length === 0) {
+      const availableItems = itemsToRender.filter(p => {
+        return p.Precio !== null && p.Precio !== undefined && p.Precio !== "" && Number(p.Precio) > 0;
+      });
+
+      if (availableItems.length === 0) {
         grid.innerHTML = "";
         noResults.classList.remove("hidden");
         return;
       }
 
       noResults.classList.add("hidden");
-      grid.innerHTML = itemsToRender.map(p => {
-        const hasPrice = p.Precio !== null && p.Precio !== undefined && p.Precio !== "" && Number(p.Precio) > 0;
-        const precioFmt = hasPrice 
-          ? `$${Number(p.Precio).toLocaleString('es-AR')}` 
-          : `<span class="text-red-600 font-bold">Sin Stock</span>`;
-        
-        const btnAttr = hasPrice 
-          ? `onclick="addToCart('${p.ID}')" class="bg-brand-600 hover:bg-brand-500 text-white p-2 rounded-lg text-xs font-semibold flex items-center space-x-1 shadow-sm transition-transform active:scale-95"` 
-          : `disabled class="bg-gray-300 text-gray-500 p-2 rounded-lg text-xs font-semibold flex items-center space-x-1 cursor-not-allowed opacity-60"`;
+      grid.innerHTML = availableItems.map(p => {
+        const precioFmt = `$${Number(p.Precio).toLocaleString('es-AR')}`;
+        const defaultImg = "https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=600&auto=format&fit=crop";
+        const plantImg = p.Imagen && p.Imagen.trim() !== "" ? p.Imagen : defaultImg;
 
         return `
-          <div class="bg-white border border-gray-200 rounded-xl p-4 flex flex-col justify-between hover:shadow-md transition-all group">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full inline-block mb-2">${p.Categoria || 'General'}</span>
-              <h4 class="font-bold text-gray-900 text-sm group-hover:text-brand-600 transition-colors">${p.Nombre}</h4>
-              <span class="text-[11px] text-gray-400 font-mono block mt-0.5">ID: ${p.ID}</span>
+          <div class="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col justify-between hover:shadow-md transition-all group">
+            <div class="h-40 w-full overflow-hidden bg-gray-100 relative">
+              <img src="${plantImg}" alt="${p.Nombre}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+              <span class="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wider text-white bg-brand-900/80 backdrop-blur-sm px-2.5 py-0.5 rounded-full">${p.Categoria || 'General'}</span>
             </div>
             
-            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-              <span class="text-base font-extrabold text-gray-900">${precioFmt}</span>
-              <button ${btnAttr}>
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                <span class="hidden sm:inline">Agregar</span>
-              </button>
+            <div class="p-4 flex flex-col justify-between flex-1">
+              <div>
+                <h4 class="font-bold text-gray-900 text-sm group-hover:text-brand-600 transition-colors">${p.Nombre}</h4>
+              </div>
+              
+              <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                <span class="text-base font-extrabold text-gray-900">${precioFmt}</span>
+                <button onclick="addToCart('${p.ID}')" class="bg-brand-600 hover:bg-brand-500 text-white p-2 rounded-lg text-xs font-semibold flex items-center space-x-1 shadow-sm transition-transform active:scale-95">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                  <span class="hidden sm:inline">Agregar</span>
+                </button>
+              </div>
             </div>
           </div>
         `;
@@ -930,7 +997,7 @@ function updateMobileFloatingBar() {
       const cat = document.getElementById("category-select").value;
 
       const filtered = plantas.filter(p => {
-        const matchesName = p.Nombre.toLowerCase().includes(search) || p.ID.toLowerCase().includes(search);
+        const matchesName = p.Nombre.toLowerCase().includes(search);
         const matchesCat = cat === "TODAS" || p.Categoria === cat;
         return matchesName && matchesCat;
       });
@@ -938,7 +1005,6 @@ function updateMobileFloatingBar() {
       renderPlantsGrid(filtered);
     }
 
-    // CART OPERATIONS (PRESUPUESTO CLIENTES)
     function addToCart(plantId) {
       const plant = plantas.find(p => p.ID === plantId);
       if (!plant) return;
@@ -953,6 +1019,8 @@ function updateMobileFloatingBar() {
         cart.push({ ...plant, cantidad: 1 });
       }
       updateCartUI();
+      updateMobileFloatingBar();
+      showNotification(plant.Nombre);
     }
 
     function updateQuantity(plantId, change) {
@@ -964,11 +1032,19 @@ function updateMobileFloatingBar() {
         }
       }
       updateCartUI();
+      updateMobileFloatingBar();
+    }
+
+    function removeFromCart(plantId) {
+      cart = cart.filter(item => item.ID !== plantId);
+      updateCartUI();
+      updateMobileFloatingBar();
     }
 
     function clearCart() {
       cart = [];
       updateCartUI();
+      updateMobileFloatingBar();
     }
 
     function updateCartUI() {
@@ -993,20 +1069,160 @@ function updateMobileFloatingBar() {
 
       cartList.innerHTML = cart.map(item => `
         <li class="p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between text-xs">
-          <div class="pr-2">
+          <div class="pr-2 flex-1">
             <h5 class="font-bold text-gray-800">${item.Nombre}</h5>
             <span class="text-gray-500 font-semibold">$${Number(item.Precio || 0).toLocaleString('es-AR')} c/u</span>
           </div>
-          <div class="flex items-center space-x-2 bg-white px-2 py-1 rounded-lg border border-gray-200">
-            <button onclick="updateQuantity('${item.ID}', -1)" class="text-gray-500 hover:text-red-600 font-bold px-1">-</button>
-            <span class="font-bold text-gray-800 text-xs">${item.cantidad}</span>
-            <button onclick="updateQuantity('${item.ID}', 1)" class="text-gray-500 hover:text-brand-600 font-bold px-1">+</button>
+          <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-1 bg-white px-2 py-1 rounded-lg border border-gray-200">
+              <button onclick="updateQuantity('${item.ID}', -1)" class="text-gray-500 hover:text-red-600 font-bold px-1">-</button>
+              <span class="font-bold text-gray-800 text-xs">${item.cantidad}</span>
+              <button onclick="updateQuantity('${item.ID}', 1)" class="text-gray-500 hover:text-brand-600 font-bold px-1">+</button>
+            </div>
+            <button onclick="removeFromCart('${item.ID}')" class="text-red-500 hover:text-red-700 p-1.5 bg-white border border-gray-200 rounded-lg transition-colors" title="Eliminar planta">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
           </div>
         </li>
       `).join('');
+      lucide.createIcons();
     }
 
-    // PRESUPUESTO ADMIN LOGIC (EXACTO A REMITO)
+    function generatePDFBudget() {
+      if (cart.length === 0) {
+        alert("Agrega al menos una planta al presupuesto antes de generar el PDF.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+      const clientName = document.getElementById("client-name").value || "Cliente Particular";
+      const clientPhone = document.getElementById("client-phone").value || "No especificado";
+      const today = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+      const budgetNum = "PRE-" + Math.floor(1000 + Math.random() * 9000);
+
+      const primaryGreen = [37, 97, 60];
+      const darkGreen = [14, 35, 23];
+      const lightBg = [242, 249, 244];
+      const textDark = [45, 55, 72];
+
+      doc.setFillColor(...darkGreen);
+      doc.rect(0, 0, 210, 42, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.text("VIVERO CALADIO", 14, 20);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(180, 225, 195);
+      doc.text("De José Luis Romero • Producción Propia y Asesoramiento", 14, 27);
+      doc.text("ESTE DOCUMENTO NO ES VÁLIDO COMO FACTURA", 14, 34);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`PRESUPUESTO #${budgetNum}`, 196, 20, { align: 'right' });
+      
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(200, 230, 210);
+      doc.text(`Fecha: ${today}`, 196, 27, { align: 'right' });
+
+      doc.setFillColor(...lightBg);
+      doc.roundedRect(14, 48, 88, 30, 3, 3, 'F');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...primaryGreen);
+      doc.text("DATOS DEL EMISOR", 18, 54);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(...textDark);
+      doc.text("Av. Felix de la Colina (Acceso Sur) - La Rioja", 18, 60);
+      doc.text("Cel: (380) 154387678", 18, 65);
+      doc.text("CUIT: 23-16733906-9", 18, 70);
+
+      doc.setFillColor(...lightBg);
+      doc.roundedRect(108, 48, 88, 30, 3, 3, 'F');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...primaryGreen);
+      doc.text("PREPARADO PARA", 112, 54);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(...textDark);
+      doc.text(clientName, 112, 61);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.text(`Teléfono: ${clientPhone}`, 112, 67);
+
+      const tableData = cart.map((item, idx) => {
+        const totalItem = Number(item.Precio || 0) * item.cantidad;
+        return [
+          idx + 1,
+          item.Nombre,
+          item.Categoria || 'General',
+          item.cantidad,
+          `$ ${Number(item.Precio || 0).toLocaleString('es-AR')}`,
+          `$ ${totalItem.toLocaleString('es-AR')}`
+        ];
+      });
+
+      const subtotal = cart.reduce((sum, item) => sum + (Number(item.Precio || 0) * item.cantidad), 0);
+
+      doc.autoTable({
+        startY: 84,
+        head: [['#', 'Especie / Descripción', 'Categoría', 'Cant.', 'P. Unitario', 'Total']],
+        body: tableData,
+        headStyles: {
+          fillColor: primaryGreen,
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 8.5,
+          halign: 'left'
+        },
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 10 },
+          1: { halign: 'left' },
+          2: { halign: 'left', cellWidth: 40 },
+          3: { halign: 'center', cellWidth: 15 },
+          4: { halign: 'right', cellWidth: 28 },
+          5: { halign: 'right', cellWidth: 32 }
+        },
+        alternateRowStyles: { fillColor: [248, 252, 249] },
+        styles: { fontSize: 8.5, cellPadding: 3.5, textColor: textDark },
+        margin: { left: 14, right: 14 }
+      });
+
+      const finalY = doc.lastAutoTable.finalY + 8;
+
+      doc.setFillColor(...primaryGreen);
+      doc.roundedRect(110, finalY, 86, 16, 3, 3, 'F');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text("TOTAL ESTIMADO", 114, finalY + 10);
+      doc.setFontSize(12);
+      doc.text(`$ ${subtotal.toLocaleString('es-AR')}`, 190, finalY + 10, { align: 'right' });
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text("• Precios sujetos a modificación según disponibilidad de stock en cultivo.", 14, finalY + 28);
+      doc.text("• Validez de esta cotización: 15 días desde la fecha de emisión.", 14, finalY + 33);
+      doc.text("¡Gracias por elegir Vivero Caladio para verdear tus espacios!", 14, finalY + 38);
+
+      doc.save(`Presupuesto_Vivero_Caladio_${budgetNum}.pdf`);
+    }
+
     function openPresupuestoAdminModal() {
       if (!isAdminLoggedIn) return;
       populatePresupuestoAdminSelect();
@@ -1307,7 +1523,6 @@ function updateMobileFloatingBar() {
       doc.save(`Presupuesto_Vivero_Caladio_${budgetNum}.pdf`);
     }
 
-    // REMITO LOGIC
     function openRemitoModal() {
       if (!isAdminLoggedIn) return;
       populateRemitoSelect();
@@ -1450,7 +1665,164 @@ function updateMobileFloatingBar() {
       lucide.createIcons();
     }
 
-    // MODAL VISIBILITY HANDLERS
+    function generatePDFRemito() {
+      if (remitoItems.length === 0) {
+        alert("Agrega al menos una planta al remito antes de generar el PDF.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+      const clientName = document.getElementById("remito-client-name").value || "Cliente Particular";
+      const clientPhone = document.getElementById("remito-client-phone").value || "No especificado";
+      const clientAddress = document.getElementById("remito-client-address").value || "Retira en Vivero";
+      const today = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+      const remitoNum = "REM-" + Math.floor(1000 + Math.random() * 9000);
+
+      const primaryColor = [180, 120, 20];
+      const darkColor = [14, 35, 23];
+      const lightBg = [254, 251, 246];
+      const textDark = [45, 55, 72];
+
+      doc.setFillColor(...darkColor);
+      doc.rect(0, 0, 210, 42, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.text("VIVERO CALADIO", 14, 20);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(230, 200, 150);
+      doc.text("De José Luis Romero • Producción Propia y Asesoramiento", 14, 27);
+      doc.text("REMITO DE SALIDA / ENTREGA DE MERCADERÍA", 14, 34);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`REMITO #${remitoNum}`, 196, 20, { align: 'right' });
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(230, 200, 150);
+      doc.text(`Fecha: ${today}`, 196, 27, { align: 'right' });
+
+      doc.setFillColor(...lightBg);
+      doc.roundedRect(14, 48, 88, 32, 3, 3, 'F');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...primaryColor);
+      doc.text("DATOS DEL EMISOR", 18, 54);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(...textDark);
+      doc.text("Av. Felix de la Colina (Acceso Sur) - La Rioja", 18, 60);
+      doc.text("Cel: (380) 154387678", 18, 65);
+      doc.text("CUIT: 23-16733906-9", 18, 70);
+
+      doc.setFillColor(...lightBg);
+      doc.roundedRect(108, 48, 88, 32, 3, 3, 'F');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...primaryColor);
+      doc.text("DESTINATARIO / ENTREGA", 112, 54);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(...textDark);
+      doc.text(clientName, 112, 60);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.text(`Tel: ${clientPhone} | Dir: ${clientAddress}`, 112, 66, { maxWidth: 80 });
+
+      const tableData = remitoItems.map((item, idx) => {
+        const totalItem = Number(item.Precio || 0) * item.cantidad;
+        return [
+          idx + 1,
+          item.Nombre,
+          item.Categoria || 'General',
+          item.cantidad,
+          `$ ${Number(item.Precio || 0).toLocaleString('es-AR')}`,
+          `$ ${totalItem.toLocaleString('es-AR')}`
+        ];
+      });
+
+      const subtotal = remitoItems.reduce((sum, item) => sum + (Number(item.Precio || 0) * item.cantidad), 0);
+      const ivaChecked = document.getElementById("remito-iva-check") ? document.getElementById("remito-iva-check").checked : false;
+      const ivaAmount = ivaChecked ? subtotal * 0.21 : 0;
+      const totalCalculated = subtotal + ivaAmount;
+
+      doc.autoTable({
+        startY: 85,
+        head: [['#', 'Especie / Descripción', 'Categoría', 'Cant.', 'P. Unitario', 'Total']],
+        body: tableData,
+        headStyles: {
+          fillColor: primaryColor,
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 8.5,
+          halign: 'left'
+        },
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 10 },
+          1: { halign: 'left' },
+          2: { halign: 'left', cellWidth: 40 },
+          3: { halign: 'center', cellWidth: 15 },
+          4: { halign: 'right', cellWidth: 28 },
+          5: { halign: 'right', cellWidth: 32 }
+        },
+        alternateRowStyles: { fillColor: [254, 252, 248] },
+        styles: { fontSize: 8.5, cellPadding: 3.5, textColor: textDark },
+        margin: { left: 14, right: 14 }
+      });
+
+      const finalY = doc.lastAutoTable.finalY + 8;
+
+      let boxHeight = 16;
+      if (ivaChecked) boxHeight = 24;
+
+      doc.setFillColor(...primaryColor);
+      doc.roundedRect(110, finalY, 86, boxHeight, 3, 3, 'F');
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(255, 255, 255);
+
+      if (ivaChecked) {
+        doc.text("Subtotal:", 114, finalY + 6);
+        doc.text(`$ ${subtotal.toLocaleString('es-AR')}`, 190, finalY + 6, { align: 'right' });
+
+        doc.text("IVA (21%):", 114, finalY + 11);
+        doc.text(`$ ${ivaAmount.toLocaleString('es-AR')}`, 190, finalY + 11, { align: 'right' });
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.text("TOTAL REMITO", 114, finalY + 18);
+        doc.setFontSize(11);
+        doc.text(`$ ${totalCalculated.toLocaleString('es-AR')}`, 190, finalY + 18, { align: 'right' });
+      } else {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.text("TOTAL REMITO", 114, finalY + 10);
+        doc.setFontSize(12);
+        doc.text(`$ ${totalCalculated.toLocaleString('es-AR')}`, 190, finalY + 10, { align: 'right' });
+      }
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text("• La mercadería viaja por cuenta y orden del comprador.", 14, finalY + boxHeight + 12);
+      doc.text("• Conforme de recepción: ___________________________", 14, finalY + boxHeight + 20);
+
+      doc.save(`Remito_Vivero_Caladio_${remitoNum}.pdf`);
+    }
+
     function openCatalogModal() {
       const modal = document.getElementById("catalog-modal");
       modal.classList.remove("hidden");
@@ -1489,7 +1861,6 @@ function updateMobileFloatingBar() {
       setTimeout(() => modal.classList.add("hidden"), 300);
     }
 
-    // ADMIN CRUD LOGIC
     function renderAdminPlantsTable() {
       const tbody = document.getElementById("admin-plants-tbody");
       tbody.innerHTML = plantas.map((p, idx) => `
@@ -1500,20 +1871,50 @@ function updateMobileFloatingBar() {
           </td>
           <td class="p-3 text-gray-500">${p.Categoria || 'General'}</td>
           <td class="p-3">
+            <input type="text" id="edit-img-${idx}" value="${p.Imagen || ''}" placeholder="URL de imagen..." class="w-full px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white text-xs">
+          </td>
+          <td class="p-3">
             <input type="number" id="edit-price-${idx}" value="${p.Precio !== null && p.Precio !== undefined ? p.Precio : ''}" placeholder="Sin Stock" class="w-24 px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white font-bold">
           </td>
           <td class="p-3 text-center">
-            <button onclick="savePlantRow(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-xs font-bold transition-colors">
-              Guardar
-            </button>
+            <div class="flex items-center justify-center space-x-2">
+              <button onclick="savePlantRow(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm">
+                Guardar
+              </button>
+              <button onclick="deletePlant('${p.ID}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm" title="Eliminar planta">
+                Eliminar
+              </button>
+            </div>
           </td>
         </tr>
       `).join('');
       lucide.createIcons();
     }
 
-    function savePlantRow(idx) {
+    function scrollToSection(event, sectionId) {
+      event.preventDefault();
+      const section = document.getElementById(sectionId);
+      if (section) {
+        // Obtenemos la altura del navbar fijo para compensarlo
+        const navHeight = 80; 
+        const elementPosition = section.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - navHeight;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+      }
+    }
+
+    async function savePlantRow(idx) {
+      if (!isAdminLoggedIn) {
+        alert("Acceso no autorizado.");
+        return;
+      }
+      const plant = plantas[idx];
       const newName = document.getElementById(`edit-name-${idx}`).value.trim();
+      const newImg = document.getElementById(`edit-img-${idx}`).value.trim();
       const rawPrice = document.getElementById(`edit-price-${idx}`).value;
       const newPrice = rawPrice !== "" && !isNaN(parseFloat(rawPrice)) ? parseFloat(rawPrice) : null;
 
@@ -1522,395 +1923,137 @@ function updateMobileFloatingBar() {
         return;
       }
 
-      plantas[idx].Nombre = newName;
-      plantas[idx].Precio = newPrice;
-      plantas[idx].Stock = newPrice !== null ? "Disponible" : "Sin Stock";
+      plant.Nombre = newName;
+      plant.Imagen = newImg;
+      plant.Precio = newPrice;
+      plant.Stock = newPrice !== null ? "Disponible" : "Sin Stock";
 
       populateCategories();
       renderPlantsGrid();
       populateRemitoSelect();
       populatePresupuestoAdminSelect();
-      alert(`Planta "${newName}" actualizada exitosamente.`);
+
+      const sessionToken = sessionStorage.getItem("adminToken") || "";
+
+      try {
+        if (API_URL && !API_URL.includes("TU_WEB_APP_URL")) {
+          await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              action: "update", 
+              token: sessionToken,
+              ID: plant.ID, 
+              Nombre: newName, 
+              Categoria: plant.Categoria, 
+              Imagen: newImg, 
+              Precio: newPrice, 
+              Stock: plant.Stock 
+            })
+          });
+        }
+        alert(`Planta "${newName}" actualizada y sincronizada en Google Sheets.`);
+      } catch (err) {
+        console.error("Error al actualizar en Google Sheets:", err);
+        alert("Se actualizó localmente, pero hubo un error al sincronizar con Google Sheets.");
+      }
+    }
+
+    async function deletePlant(plantId) {
+      if (!isAdminLoggedIn) {
+        alert("Acceso no autorizado.");
+        return;
+      }
+      const plant = plantas.find(p => p.ID === plantId);
+      if (!plant) return;
+
+      if (!confirm(`¿Estás seguro de que deseas eliminar la planta "${plant.Nombre}" (ID: ${plant.ID})?`)) {
+        return;
+      }
+
+      plantas = plantas.filter(p => p.ID !== plantId);
+
+      populateCategories();
+      renderPlantsGrid();
+      renderAdminPlantsTable();
+      populateRemitoSelect();
+      populatePresupuestoAdminSelect();
+
+      const sessionToken = sessionStorage.getItem("adminToken") || "";
+
+      try {
+        if (API_URL && !API_URL.includes("TU_WEB_APP_URL")) {
+          await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "delete", token: sessionToken, ID: plantId })
+          });
+        }
+        alert(`Planta "${plant.Nombre}" eliminada correctamente.`);
+      } catch (err) {
+        console.error("Error al eliminar en Google Sheets:", err);
+        alert("La planta fue eliminada localmente, pero hubo un error al sincronizar con Google Sheets.");
+      }
     }
 
     async function addNewPlant() {
-  const id = document.getElementById("new-plant-id").value.trim();
-  const name = document.getElementById("new-plant-name").value.trim();
-  const cat = document.getElementById("new-plant-cat").value.trim() || "General";
-  const rawPrice = document.getElementById("new-plant-price").value;
-  const price = rawPrice !== "" && !isNaN(parseFloat(rawPrice)) ? parseFloat(rawPrice) : null;
+      if (!isAdminLoggedIn) {
+        alert("Acceso no autorizado.");
+        return;
+      }
+      const id = document.getElementById("new-plant-id").value.trim();
+      const name = document.getElementById("new-plant-name").value.trim();
+      const cat = document.getElementById("new-plant-cat").value.trim() || "General";
+      const img = document.getElementById("new-plant-img").value.trim();
+      const rawPrice = document.getElementById("new-plant-price").value;
+      const price = rawPrice !== "" && !isNaN(parseFloat(rawPrice)) ? parseFloat(rawPrice) : null;
 
-  if (!id || !name) {
-    alert("Ingresa un ID y nombre válidos para crear la planta.");
-    return;
-  }
-
-  const newPlant = {
-    ID: id,
-    Nombre: name,
-    Categoria: cat,
-    Precio: price,
-    Stock: price !== null ? "Disponible" : "Sin Stock"
-  };
-
-  // 1. Agregar localmente a la memoria de la app
-  plantas.unshift(newPlant);
-
-  // 2. Limpiar campos del formulario
-  document.getElementById("new-plant-id").value = "";
-  document.getElementById("new-plant-name").value = "";
-  document.getElementById("new-plant-cat").value = "";
-  document.getElementById("new-plant-price").value = "";
-
-  // 3. Actualizar vistas de la aplicación
-  populateCategories();
-  renderPlantsGrid();
-  renderAdminPlantsTable();
-  populateRemitoSelect();
-  populatePresupuestoAdminSelect();
-
-  // 4. Enviar los datos a Google Sheets
-  try {
-    if (API_URL && !API_URL.includes("TU_WEB_APP_URL")) {
-      await fetch(API_URL, {
-        method: "POST",
-        mode: "no-cors", // Requerido para peticiones simples a Google Apps Script
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPlant)
-      });
-    }
-    alert(`Planta "${name}" guardada con éxito y agregada a Google Sheets.`);
-  } catch (err) {
-    console.error("Error al guardar en Google Sheets:", err);
-    alert(`Planta "${name}" agregada localmente, pero ocurrió un error al sincronizar con Google Sheets.`);
-  }
-}
-
-    // EXPORTAR REMITO PDF
-    function generatePDFRemito() {
-      if (remitoItems.length === 0) {
-        alert("Agrega al menos una planta al remito antes de generar el PDF.");
+      if (!id || !name) {
+        alert("Ingresa un ID y nombre válidos para crear la planta.");
         return;
       }
 
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+      const cleanPlant = {
+        ID: id,
+        Nombre: name,
+        Categoria: cat,
+        Imagen: img,
+        Precio: price,
+        Stock: price !== null ? "Disponible" : "Sin Stock"
+      };
 
-      const clientName = document.getElementById("remito-client-name").value || "Cliente Particular";
-      const clientPhone = document.getElementById("remito-client-phone").value || "No especificado";
-      const clientAddress = document.getElementById("remito-client-address").value || "Retira en Vivero";
-      const today = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
-      const remitoNum = "REM-" + Math.floor(1000 + Math.random() * 9000);
+      plantas.unshift(cleanPlant);
 
-      const primaryColor = [37, 97, 60];
-      const darkColor = [14, 35, 23];
-      const lightBg = [242, 249, 244];
-      const textDark = [45, 55, 72];
+      document.getElementById("new-plant-id").value = "";
+      document.getElementById("new-plant-name").value = "";
+      document.getElementById("new-plant-cat").value = "";
+      document.getElementById("new-plant-img").value = "";
+      document.getElementById("new-plant-price").value = "";
 
-      doc.setFillColor(...darkColor);
-      doc.rect(0, 0, 210, 42, 'F');
+      populateCategories();
+      renderPlantsGrid();
+      renderAdminPlantsTable();
+      populateRemitoSelect();
+      populatePresupuestoAdminSelect();
 
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(22);
-      doc.text("VIVERO CALADIO", 14, 20);
+      const sessionToken = sessionStorage.getItem("adminToken") || "";
 
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(180, 225, 195);
-      doc.text("De José Luis Romero • Producción Propia y Asesoramiento", 14, 27);
-      doc.text("ESTE DOCUMENTO NO ES VÁLIDO COMO FACTURA", 14, 34);
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.setTextColor(255, 255, 255);
-      doc.text(`REMITO DE ENTREGA #${remitoNum}`, 196, 20, { align: 'right' });
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8.5);
-      doc.setTextColor(200, 230, 210);
-      doc.text(`Fecha: ${today}`, 196, 27, { align: 'right' });
-
-      doc.setFillColor(...lightBg);
-      doc.roundedRect(14, 48, 88, 32, 3, 3, 'F');
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
-      doc.setTextColor(...primaryColor);
-      doc.text("DATOS DEL EMISOR", 18, 54);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.setTextColor(...textDark);
-      doc.text("Av. Felix de la Colina (Acceso Sur) - La Rioja", 18, 60);
-      doc.text("Cel: (380) 154387678", 18, 65);
-      doc.text("CUIT: 23-16733906-9", 18, 70);
-
-      doc.setFillColor(...lightBg);
-      doc.roundedRect(108, 48, 88, 32, 3, 3, 'F');
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
-      doc.setTextColor(...primaryColor);
-      doc.text("RECEPTOR / DESTINATARIO", 112, 54);
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9.5);
-      doc.setTextColor(...textDark);
-      doc.text(clientName, 112, 61);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.text(`Teléfono: ${clientPhone}`, 112, 67);
-      doc.text(`Dirección: ${clientAddress}`, 112, 72);
-
-      const tableData = remitoItems.map((item, idx) => {
-        const totalItem = Number(item.Precio || 0) * item.cantidad;
-        return [
-          idx + 1,
-          item.Nombre,
-          item.cantidad,
-          `$ ${Number(item.Precio || 0).toLocaleString('es-AR')}`,
-          `$ ${totalItem.toLocaleString('es-AR')}`
-        ];
-      });
-
-      const subtotal = remitoItems.reduce((sum, item) => sum + (Number(item.Precio || 0) * item.cantidad), 0);
-      const ivaChecked = document.getElementById("remito-iva-check") ? document.getElementById("remito-iva-check").checked : false;
-      const ivaAmount = ivaChecked ? subtotal * 0.21 : 0;
-      const totalCalculated = subtotal + ivaAmount;
-
-      doc.autoTable({
-        startY: 86,
-        head: [['#', 'Especie / Producto', 'Cant.', 'P. Unitario', 'Total']],
-        body: tableData,
-        headStyles: {
-          fillColor: primaryColor,
-          textColor: [255, 255, 255],
-          fontStyle: 'bold',
-          fontSize: 8.5,
-          halign: 'left'
-        },
-        columnStyles: {
-          0: { halign: 'center', cellWidth: 10 },
-          1: { halign: 'left' },
-          2: { halign: 'center', cellWidth: 20 },
-          3: { halign: 'right', cellWidth: 32 },
-          4: { halign: 'right', cellWidth: 35 }
-        },
-        alternateRowStyles: { fillColor: [248, 252, 249] },
-        styles: { fontSize: 8.5, cellPadding: 3.5, textColor: textDark },
-        margin: { left: 14, right: 14 }
-      });
-
-      const finalY = doc.lastAutoTable.finalY + 8;
-
-      let boxHeight = 16;
-      if (ivaChecked) boxHeight = 24;
-
-      doc.setFillColor(...primaryColor);
-      doc.roundedRect(110, finalY, 86, boxHeight, 3, 3, 'F');
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(255, 255, 255);
-
-      if (ivaChecked) {
-        doc.text("Subtotal:", 114, finalY + 6);
-        doc.text(`$ ${subtotal.toLocaleString('es-AR')}`, 190, finalY + 6, { align: 'right' });
-
-        doc.text("IVA (21%):", 114, finalY + 11);
-        doc.text(`$ ${ivaAmount.toLocaleString('es-AR')}`, 190, finalY + 11, { align: 'right' });
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.text("TOTAL REMITO", 114, finalY + 18);
-        doc.setFontSize(11);
-        doc.text(`$ ${totalCalculated.toLocaleString('es-AR')}`, 190, finalY + 18, { align: 'right' });
-      } else {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.text("TOTAL REMITO", 114, finalY + 10);
-        doc.setFontSize(12);
-        doc.text(`$ ${totalCalculated.toLocaleString('es-AR')}`, 190, finalY + 10, { align: 'right' });
+      try {
+        if (API_URL && !API_URL.includes("TU_WEB_APP_URL")) {
+          await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "create", token: sessionToken, ...cleanPlant })
+          });
+        }
+        alert(`Planta "${name}" guardada con éxito y agregada a Google Sheets.`);
+      } catch (err) {
+        console.error("Error al guardar en Google Sheets:", err);
+        alert(`Planta "${name}" agregada localmente, pero ocurrió un error al sincronizar con Google Sheets.`);
       }
-
-      const signatureY = finalY + boxHeight + 20;
-      doc.setDrawColor(180, 180, 180);
-      doc.line(20, signatureY, 80, signatureY);
-      doc.line(130, signatureY, 190, signatureY);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      doc.text("Firma Entregado (Vivero)", 32, signatureY + 5);
-      doc.text("Firma Recibido Conforme", 142, signatureY + 5);
-
-      doc.save(`Remito_Vivero_Caladio_${remitoNum}.pdf`);
-    }
-
-    // EXPORTAR PRESUPUESTO PDF CLIENTES
-    function generatePDFBudget() {
-      if (cart.length === 0) {
-        alert("Agrega al menos una planta al presupuesto antes de exportar.");
-        return;
-      }
-
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-
-      const clientName = document.getElementById("client-name").value || "Cliente Particular";
-      const clientPhone = document.getElementById("client-phone").value || "No especificado";
-      const today = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
-      const budgetNum = "PRE-" + Math.floor(1000 + Math.random() * 9000);
-
-      const primaryGreen = [37, 97, 60];
-      const darkGreen = [14, 35, 23];
-      const lightBg = [242, 249, 244];
-      const textDark = [45, 55, 72];
-
-      doc.setFillColor(...darkGreen);
-      doc.rect(0, 0, 210, 42, 'F');
-
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(22);
-      doc.text("VIVERO CALADIO", 14, 20);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(180, 225, 195);
-      doc.text("De José Luis Romero • Producción Propia y Asesoramiento", 14, 27);
-      doc.text("ESTE DOCUMENTO NO ES VÁLIDO COMO FACTURA", 14, 34);
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.setTextColor(255, 255, 255);
-      doc.text(`PRESUPUESTO #${budgetNum}`, 196, 20, { align: 'right' });
-      
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8.5);
-      doc.setTextColor(200, 230, 210);
-      doc.text(`Fecha: ${today}`, 196, 27, { align: 'right' });
-
-      doc.setFillColor(...lightBg);
-      doc.roundedRect(14, 48, 88, 30, 3, 3, 'F');
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
-      doc.setTextColor(...primaryGreen);
-      doc.text("DATOS DEL EMISOR", 18, 54);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.setTextColor(...textDark);
-      doc.text("Av. Felix de la Colina (Acceso Sur) - La Rioja", 18, 60);
-      doc.text("Cel: (380) 154387678", 18, 65);
-      doc.text("CUIT: 23-16733906-9", 18, 70);
-
-      doc.setFillColor(...lightBg);
-      doc.roundedRect(108, 48, 88, 30, 3, 3, 'F');
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
-      doc.setTextColor(...primaryGreen);
-      doc.text("PREPARADO PARA", 112, 54);
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9.5);
-      doc.setTextColor(...textDark);
-      doc.text(clientName, 112, 61);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.text(`Teléfono: ${clientPhone}`, 112, 67);
-
-      const tableData = cart.map((item, idx) => {
-        const totalItem = Number(item.Precio || 0) * item.cantidad;
-        return [
-          idx + 1,
-          item.Nombre,
-          item.Categoria || 'General',
-          item.cantidad,
-          `$ ${Number(item.Precio || 0).toLocaleString('es-AR')}`,
-          `$ ${totalItem.toLocaleString('es-AR')}`
-        ];
-      });
-
-      const totalCalculated = cart.reduce((sum, item) => sum + (Number(item.Precio || 0) * item.cantidad), 0);
-
-      doc.autoTable({
-        startY: 84,
-        head: [['#', 'Especie / Descripción', 'Categoría', 'Cant.', 'P. Unitario', 'Total']],
-        body: tableData,
-        headStyles: {
-          fillColor: primaryGreen,
-          textColor: [255, 255, 255],
-          fontStyle: 'bold',
-          fontSize: 8.5,
-          halign: 'left'
-        },
-        columnStyles: {
-          0: { halign: 'center', cellWidth: 10 },
-          1: { halign: 'left' },
-          2: { halign: 'left', cellWidth: 40 },
-          3: { halign: 'center', cellWidth: 15 },
-          4: { halign: 'right', cellWidth: 28 },
-          5: { halign: 'right', cellWidth: 32 }
-        },
-        alternateRowStyles: { fillColor: [248, 252, 249] },
-        styles: { fontSize: 8.5, cellPadding: 3.5, textColor: textDark },
-        margin: { left: 14, right: 14 }
-      });
-
-      const finalY = doc.lastAutoTable.finalY + 8;
-      const boxHeight = 16;
-
-      doc.setFillColor(...primaryGreen);
-      doc.roundedRect(110, finalY, 86, boxHeight, 3, 3, 'F');
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.setTextColor(255, 255, 255);
-      doc.text("TOTAL ESTIMADO", 114, finalY + 10);
-      doc.setFontSize(12);
-      doc.text(`$ ${totalCalculated.toLocaleString('es-AR')}`, 190, finalY + 10, { align: 'right' });
-
-      doc.setFont("helvetica", "italic");
-      doc.setFontSize(8);
-      doc.setTextColor(120, 120, 120);
-      doc.text("• Precios sujetos a modificación según disponibilidad de stock en cultivo.", 14, finalY + boxHeight + 12);
-      doc.text("• Validez de esta cotización: 15 días desde la fecha de emisión.", 14, finalY + boxHeight + 17);
-      doc.text("¡Gracias por elegir Vivero Caladio para verdear tus espacios!", 14, finalY + boxHeight + 22);
-
-      doc.save(`Presupuesto_Vivero_Caladio_${budgetNum}.pdf`);
-    }
-
-    function submitAdminLogin() {
-      const pass = document.getElementById("admin-pass").value;
-      if (pass === "AdminVivero2026") {
-        isAdminLoggedIn = true;
-        document.getElementById("admin-login-view").classList.add("hidden");
-        document.getElementById("admin-crud-view").classList.remove("hidden");
-        document.getElementById("nav-btn-presupuesto").classList.remove("hidden");
-        document.getElementById("nav-btn-plant-list").classList.remove("hidden");
-        document.getElementById("nav-btn-remito").classList.remove("hidden");
-      } else {
-        alert("Contraseña incorrecta.");
-      }
-    }
-
-    function logoutAdmin() {
-      isAdminLoggedIn = false;
-      document.getElementById("admin-login-view").classList.remove("hidden");
-      document.getElementById("admin-crud-view").classList.add("hidden");
-      document.getElementById("nav-btn-presupuesto").classList.add("hidden");
-      document.getElementById("nav-btn-plant-list").classList.add("hidden");
-      document.getElementById("nav-btn-remito").classList.add("hidden");
-      document.getElementById("admin-pass").value = "";
-      closePlantListModal();
-      closeRemitoModal();
-      closePresupuestoAdminModal();
     }
   </script>
 </body>
