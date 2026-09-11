@@ -637,7 +637,7 @@
           </div>
           <div>
             <h3 class="font-serif text-lg font-bold">Gestión de Inventario de Plantas</h3>
-            <p class="text-xs text-brand-300">Modifica precios, nombres, imágenes, añade o elimina especies</p>
+            <p class="text-xs text-brand-300">Modifica precios, nombres, añade o elimina especies</p>
           </div>
         </div>
         <button onclick="closePlantListModal()" class="w-9 h-9 rounded-lg bg-brand-800 hover:bg-brand-700 flex items-center justify-center text-brand-200 hover:text-white">
@@ -651,11 +651,17 @@
             <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i>
             <span>Agregar Nueva Planta</span>
           </h4>
-          <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
-            <input type="text" id="new-plant-id" placeholder="ID (ej: PLN-009)" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <!-- ID Automático (solo lectura) -->
+            <input type="text" id="new-plant-id" placeholder="ID Automático" readonly class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-100 text-gray-500 cursor-not-allowed outline-none" title="Generado automáticamente">
+            
             <input type="text" id="new-plant-name" placeholder="Nombre de la planta" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
-            <input type="text" id="new-plant-cat" placeholder="Categoría" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
-            <input type="text" id="new-plant-img" placeholder="URL Imagen (Opcional)" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+            
+            <!-- Categoría desplegable -->
+            <select id="new-plant-cat" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+              <option value="">Seleccionar Categoría...</option>
+            </select>
+            
             <input type="number" id="new-plant-price" placeholder="Precio ($)" class="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
           </div>
           <button onclick="addNewPlant()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-lg text-xs shadow transition-all flex items-center justify-center space-x-2">
@@ -680,7 +686,6 @@
                   <th class="p-3">ID</th>
                   <th class="p-3">Nombre</th>
                   <th class="p-3">Categoría</th>
-                  <th class="p-3">Imagen URL</th>
                   <th class="p-3">Precio ($)</th>
                   <th class="p-3 text-center">Acciones</th>
                 </tr>

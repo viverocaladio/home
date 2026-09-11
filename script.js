@@ -1140,12 +1140,40 @@ function closeAdminModal() {
 
 function openPlantListModal() {
   if (!isAdminLoggedIn) return;
-  const searchInput = document.getElementById("admin-search-input");
-  if (searchInput) searchInput.value = "";
-  renderAdminPlantsTable(plantas);
+  generateNextPlantID();
+  populateAdminCategoryDropdown();
+  renderAdminPlantsTable();
   const modal = document.getElementById("plant-list-modal");
   modal.classList.remove("hidden");
   setTimeout(() => modal.classList.remove("opacity-0"), 10);
+}
+
+function generateNextPlantID() {
+  const idInput = document.getElementById("new-plant-id");
+  if (!idInput) return;
+
+  if (!plantas || plantas.length === 0) {
+    idInput.value = "PLN-001";
+    return;
+  }
+
+  const numbers = plantas.map(p => {
+    const match = p.ID && p.ID.match(/PLN-(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  });
+
+  const maxNum = Math.max(...numbers, 0);
+  const nextNum = maxNum + 1;
+  idInput.value = `PLN-${String(nextNum).padStart(3, '0')}`;
+}
+
+function populateAdminCategoryDropdown() {
+  const catSelect = document.getElementById("new-plant-cat");
+  if (!catSelect) return;
+
+  const cats = [...new Set(plantas.map(p => p.Categoria))].filter(Boolean).sort();
+  catSelect.innerHTML = '<option value="">Seleccionar Categoría...</option>' + 
+    cats.map(c => `<option value="${c}">${c}</option>`).join('');
 }
 
 function closePlantListModal() {
@@ -1156,20 +1184,23 @@ function closePlantListModal() {
 
 function renderAdminPlantsTable(itemsToRender = plantas) {
   const tbody = document.getElementById("admin-plants-tbody");
+  if (!tbody) return;
+
   tbody.innerHTML = itemsToRender.map((p) => {
     const realIdx = plantas.findIndex(item => item.ID === p.ID);
+    const precioVal = p.Precio !== null && p.Precio !== undefined && p.Precio !== "" ? p.Precio : "";
+    
     return `
       <tr class="hover:bg-gray-50 transition-colors">
         <td class="p-3 font-mono font-bold text-gray-500">${p.ID}</td>
         <td class="p-3">
-          <input type="text" id="edit-name-${realIdx}" value="${p.Nombre}" class="w-full px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white">
-        </td>
-        <td class="p-3 text-gray-500">${p.Categoria || 'General'}</td>
-        <td class="p-3">
-          <input type="text" id="edit-img-${realIdx}" value="${p.Imagen || ''}" placeholder="URL de imagen..." class="w-full px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white text-xs">
+          <input type="text" value="${p.Nombre}" id="admin-name-${realIdx}" class="w-full px-2 py-1 border border-gray-200 rounded text-xs bg-white focus:border-brand-500 outline-none">
         </td>
         <td class="p-3">
-          <input type="number" id="edit-price-${realIdx}" value="${p.Precio !== null && p.Precio !== undefined ? p.Precio : ''}" placeholder="Sin Stock" class="w-24 px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white font-bold">
+          <input type="text" value="${p.Categoria || ''}" id="admin-cat-${realIdx}" class="w-full px-2 py-1 border border-gray-200 rounded text-xs bg-white focus:border-brand-500 outline-none">
+        </td>
+        <td class="p-3">
+          <input type="number" value="${precioVal}" id="admin-price-${realIdx}" placeholder="Sin precio" class="w-24 px-2 py-1 border border-gray-200 rounded text-xs bg-white focus:border-brand-500 outline-none font-bold">
         </td>
         <td class="p-3 text-center">
           <div class="flex items-center justify-center space-x-2">
@@ -1188,8 +1219,8 @@ function renderAdminPlantsTable(itemsToRender = plantas) {
 }
 
 function filterAdminPlants() {
-  const query = document.getElementById("admin-search-input").value.toLowerCase().trim();
-  const filtered = plantas.filter(p => p.Nombre.toLowerCase().includes(query));
+  const search = document.getElementById("admin-search-input").value.toLowerCase().trim();
+  const filtered = plantas.filter(p => p.Nombre.toLowerCase().includes(search) || p.ID.toLowerCase().includes(search));
   renderAdminPlantsTable(filtered);
 }
 
@@ -1214,9 +1245,9 @@ async function savePlantRow(idx) {
     return;
   }
   const plant = plantas[idx];
-  const newName = document.getElementById(`edit-name-${idx}`).value.trim();
-  const newImg = document.getElementById(`edit-img-${idx}`).value.trim();
-  const rawPrice = document.getElementById(`edit-price-${idx}`).value;
+  const newName = document.getElementById(`admin-name-${idx}`).value.trim();
+  const newCat = document.getElementById(`admin-cat-${idx}`).value.trim();
+  const rawPrice = document.getElementById(`admin-price-${idx}`).value;
   const newPrice = rawPrice !== "" && !isNaN(parseFloat(rawPrice)) ? parseFloat(rawPrice) : null;
 
   if (!newName) {
@@ -1225,7 +1256,7 @@ async function savePlantRow(idx) {
   }
 
   plant.Nombre = newName;
-  plant.Imagen = newImg;
+  plant.Categoria = newCat;
   plant.Precio = newPrice;
   plant.Stock = newPrice !== null ? "Disponible" : "Sin Stock";
 
@@ -1248,16 +1279,16 @@ async function savePlantRow(idx) {
           token: sessionToken,
           ID: plant.ID, 
           Nombre: newName, 
-          Categoria: plant.Categoria, 
-          Imagen: newImg, 
+          Categoria: newCat, 
+          Imagen: plant.Imagen || "", 
           Precio: newPrice, 
           Stock: plant.Stock 
         })
       });
     }
-    alert(`Planta "${newName}" actualizada y sincronizada en Google Sheets.`);
+    alert(`Planta "${newName}" actualizada y sincronizada correctamente.`);
   } catch (err) {
-    console.error("Error al actualizar en Google Sheets:", err);
+    console.error("Error al sincronizar:", err);
     alert("Se actualizó localmente, pero hubo un error al sincronizar con Google Sheets.");
   }
 }
@@ -1312,24 +1343,24 @@ async function addNewPlant() {
   const idInput = document.getElementById("new-plant-id");
   const nameInput = document.getElementById("new-plant-name");
   const catInput = document.getElementById("new-plant-cat");
-  const imgInput = document.getElementById("new-plant-img");
   const priceInput = document.getElementById("new-plant-price");
+  const imgInput = document.getElementById("new-plant-img"); // Por si el HTML aún lo tiene oculto o disponible
 
-  const newId = idInput.value.trim();
-  const newName = nameInput.value.trim();
-  const newCat = catInput.value.trim() || "General";
-  const newImg = imgInput.value.trim();
-  const rawPrice = priceInput.value.trim();
+  const newId = idInput ? idInput.value.trim() : "";
+  const newName = nameInput ? nameInput.value.trim() : "";
+  const newCat = catInput ? catInput.value.trim() : "General";
+  const rawPrice = priceInput ? priceInput.value.trim() : "";
   const newPrice = rawPrice !== "" && !isNaN(parseFloat(rawPrice)) ? parseFloat(rawPrice) : null;
+  const newImg = imgInput ? imgInput.value.trim() : "";
 
-  if (!newId || !newName) {
-    alert("Por favor completa al menos el ID y el Nombre de la nueva planta.");
+  if (!newId || !newName || !newCat) {
+    alert("Por favor completa el ID, el Nombre y selecciona una Categoría.");
     return;
   }
 
   const exists = plantas.some(p => p.ID === newId);
   if (exists) {
-    alert("Ya existe una planta con el ID ingresado. Utiliza otro ID.");
+    alert("Ya existe una planta con el ID ingresado.");
     return;
   }
 
@@ -1344,15 +1375,15 @@ async function addNewPlant() {
 
   plantas.push(newPlantObj);
 
-  idInput.value = "";
-  nameInput.value = "";
-  catInput.value = "";
-  imgInput.value = "";
-  priceInput.value = "";
+  if (nameInput) nameInput.value = "";
+  if (priceInput) priceInput.value = "";
+  if (catInput) catInput.value = "";
+  if (imgInput) imgInput.value = "";
 
+  generateNextPlantID();
   populateCategories();
   renderPlantsGrid();
-  renderAdminPlantsTable(plantas);
+  renderAdminPlantsTable();
   populateRemitoSelect();
   populatePresupuestoAdminSelect();
 
@@ -1371,7 +1402,7 @@ async function addNewPlant() {
         })
       });
     }
-    alert(`Planta "${newName}" agregada y guardada correctamente.`);
+    alert(`¡Planta "${newName}" agregada con éxito con el ID ${newId}!`);
   } catch (err) {
     console.error("Error al crear en Google Sheets:", err);
     alert("Se agregó localmente, pero hubo un error al sincronizar con Google Sheets.");
