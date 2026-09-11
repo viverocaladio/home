@@ -736,9 +736,12 @@
         </div>
 
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+          <div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
             <span class="text-xs font-bold uppercase text-gray-500 tracking-wider">Lista Actual de Especies</span>
-            <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Cambios directos</span>
+            <div class="relative w-full sm:w-64">
+              <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+              <input type="text" id="admin-search-input" oninput="filterAdminPlants()" placeholder="Filtrar por nombre..." class="w-full pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500">
+            </div>
           </div>
           
           <div class="overflow-x-auto">
@@ -1849,7 +1852,9 @@
 
     function openPlantListModal() {
       if (!isAdminLoggedIn) return;
-      renderAdminPlantsTable();
+      const searchInput = document.getElementById("admin-search-input");
+      if (searchInput) searchInput.value = "";
+      renderAdminPlantsTable(plantas);
       const modal = document.getElementById("plant-list-modal");
       modal.classList.remove("hidden");
       setTimeout(() => modal.classList.remove("opacity-0"), 10);
@@ -1861,34 +1866,44 @@
       setTimeout(() => modal.classList.add("hidden"), 300);
     }
 
-    function renderAdminPlantsTable() {
+    function renderAdminPlantsTable(itemsToRender = plantas) {
       const tbody = document.getElementById("admin-plants-tbody");
-      tbody.innerHTML = plantas.map((p, idx) => `
-        <tr class="hover:bg-gray-50 transition-colors">
-          <td class="p-3 font-mono font-bold text-gray-500">${p.ID}</td>
-          <td class="p-3">
-            <input type="text" id="edit-name-${idx}" value="${p.Nombre}" class="w-full px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white">
-          </td>
-          <td class="p-3 text-gray-500">${p.Categoria || 'General'}</td>
-          <td class="p-3">
-            <input type="text" id="edit-img-${idx}" value="${p.Imagen || ''}" placeholder="URL de imagen..." class="w-full px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white text-xs">
-          </td>
-          <td class="p-3">
-            <input type="number" id="edit-price-${idx}" value="${p.Precio !== null && p.Precio !== undefined ? p.Precio : ''}" placeholder="Sin Stock" class="w-24 px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white font-bold">
-          </td>
-          <td class="p-3 text-center">
-            <div class="flex items-center justify-center space-x-2">
-              <button onclick="savePlantRow(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm">
-                Guardar
-              </button>
-              <button onclick="deletePlant('${p.ID}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm" title="Eliminar planta">
-                Eliminar
-              </button>
-            </div>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = itemsToRender.map((p) => {
+        // Encontramos el índice real en el array principal `plantas` para que las funciones de guardar y eliminar actúen correctamente sobre el objeto exacto
+        const realIdx = plantas.findIndex(item => item.ID === p.ID);
+        return `
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="p-3 font-mono font-bold text-gray-500">${p.ID}</td>
+            <td class="p-3">
+              <input type="text" id="edit-name-${realIdx}" value="${p.Nombre}" class="w-full px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white">
+            </td>
+            <td class="p-3 text-gray-500">${p.Categoria || 'General'}</td>
+            <td class="p-3">
+              <input type="text" id="edit-img-${realIdx}" value="${p.Imagen || ''}" placeholder="URL de imagen..." class="w-full px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white text-xs">
+            </td>
+            <td class="p-3">
+              <input type="number" id="edit-price-${realIdx}" value="${p.Precio !== null && p.Precio !== undefined ? p.Precio : ''}" placeholder="Sin Stock" class="w-24 px-2 py-1 border border-gray-200 rounded focus:border-emerald-500 outline-none bg-white font-bold">
+            </td>
+            <td class="p-3 text-center">
+              <div class="flex items-center justify-center space-x-2">
+                <button onclick="savePlantRow(${realIdx})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm">
+                  Guardar
+                </button>
+                <button onclick="deletePlant('${p.ID}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm" title="Eliminar planta">
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
       lucide.createIcons();
+    }
+
+    function filterAdminPlants() {
+      const query = document.getElementById("admin-search-input").value.toLowerCase().trim();
+      const filtered = plantas.filter(p => p.Nombre.toLowerCase().includes(query));
+      renderAdminPlantsTable(filtered);
     }
 
     function scrollToSection(event, sectionId) {
@@ -1930,6 +1945,7 @@
 
       populateCategories();
       renderPlantsGrid();
+      filterAdminPlants();
       populateRemitoSelect();
       populatePresupuestoAdminSelect();
 
@@ -1976,7 +1992,7 @@
 
       populateCategories();
       renderPlantsGrid();
-      renderAdminPlantsTable();
+      filterAdminPlants();
       populateRemitoSelect();
       populatePresupuestoAdminSelect();
 
@@ -2011,11 +2027,16 @@
       const price = rawPrice !== "" && !isNaN(parseFloat(rawPrice)) ? parseFloat(rawPrice) : null;
 
       if (!id || !name) {
-        alert("Ingresa un ID y nombre válidos para crear la planta.");
+        alert("Por favor completa al menos el ID y el Nombre de la nueva planta.");
         return;
       }
 
-      const cleanPlant = {
+      if (plantas.some(p => p.ID === id)) {
+        alert("Ya existe una planta con ese ID. Utiliza uno diferente.");
+        return;
+      }
+
+      const newObj = {
         ID: id,
         Nombre: name,
         Categoria: cat,
@@ -2024,7 +2045,7 @@
         Stock: price !== null ? "Disponible" : "Sin Stock"
       };
 
-      plantas.unshift(cleanPlant);
+      plantas.push(newObj);
 
       document.getElementById("new-plant-id").value = "";
       document.getElementById("new-plant-name").value = "";
@@ -2034,7 +2055,7 @@
 
       populateCategories();
       renderPlantsGrid();
-      renderAdminPlantsTable();
+      filterAdminPlants();
       populateRemitoSelect();
       populatePresupuestoAdminSelect();
 
@@ -2046,13 +2067,17 @@
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "create", token: sessionToken, ...cleanPlant })
+            body: JSON.stringify({ 
+              action: "create", 
+              token: sessionToken,
+              ...newObj 
+            })
           });
         }
-        alert(`Planta "${name}" guardada con éxito y agregada a Google Sheets.`);
+        alert(`Planta "${name}" creada y guardada con éxito.`);
       } catch (err) {
-        console.error("Error al guardar en Google Sheets:", err);
-        alert(`Planta "${name}" agregada localmente, pero ocurrió un error al sincronizar con Google Sheets.`);
+        console.error("Error al crear en Google Sheets:", err);
+        alert("Se añadió localmente, pero hubo un error al sincronizar con Google Sheets.");
       }
     }
   </script>
