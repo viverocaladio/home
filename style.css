@@ -1,0 +1,31 @@
+.glass-nav {
+  background: rgba(14, 35, 23, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.hero-gradient {
+  background: linear-gradient(180deg, rgba(14, 35, 23, 0.7) 0%, rgba(14, 35, 23, 0.9) 100%), url('https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=2000&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+}
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #2d7a4a;
+  border-radius: 4px;
+}
+/* Transiciones fluidas para modales y paneles en móviles */
+.modal-transition {
+  transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+}
+
+/* Mejora el rendimiento de la pintura en dispositivos móviles */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
